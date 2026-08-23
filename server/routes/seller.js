@@ -118,10 +118,13 @@ router.post('/products', (req, res) => {
       variants = [],
       specs = {},
       highlights = [],
-      offers = []
+      offers = [],
+      category
     } = req.body;
 
-    if (!name || !categoryId || price === undefined || price === '') {
+    const finalCategoryId = categoryId || category || 'cat_01';
+
+    if (!name || !finalCategoryId || price === undefined || price === '') {
       return res.status(400).json({ success: false, message: 'Product Name, Department Category, and Price are required.' });
     }
 
@@ -136,7 +139,7 @@ router.post('/products', (req, res) => {
     const newProduct = {
       id: `prod_${uuidv4().substring(0, 8)}`,
       sellerId: seller.id,
-      categoryId,
+      categoryId: finalCategoryId,
       brandId: brandId || 'br_custom',
       name: name.trim(),
       slug,

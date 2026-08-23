@@ -623,31 +623,49 @@ export const SellerDashboard = ({ onNavigate }) => {
           }
         } else {
           // Unauthenticated guest creating new merchant account
-          if (!merchantNameInput.trim() || !merchantEmailInput.trim() || !merchantPasswordInput) {
-            setOnboardError('Please fill in your name, email, and password to create your merchant account.');
-            showError('Please complete all merchant registration fields.');
+          if (!merchantNameInput.trim()) {
+            const msg = 'Please enter your full name.';
+            setOnboardError(msg);
+            showError(msg);
+            setIsLaunchingStore(false);
+            return;
+          }
+
+          if (!merchantEmailInput.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(merchantEmailInput.trim())) {
+            const msg = 'Please enter a valid business email address.';
+            setOnboardError(msg);
+            showError(msg);
+            setIsLaunchingStore(false);
+            return;
+          }
+
+          if (!merchantPasswordInput || merchantPasswordInput.length < 4) {
+            const msg = 'Please enter a password with at least 4 characters.';
+            setOnboardError(msg);
+            showError(msg);
             setIsLaunchingStore(false);
             return;
           }
 
           const res = await register({
             name: merchantNameInput.trim(),
-            email: merchantEmailInput.trim(),
+            email: merchantEmailInput.trim().toLowerCase(),
             password: merchantPasswordInput,
             role: 'seller',
             storeName: storeNameInput.trim()
           });
 
-          if (res.success) {
-            showSuccess('Merchant store registered and launched successfully!');
+          if (res && res.success) {
+            showSuccess(res.message || 'Merchant store registered and launched successfully!');
             await refreshProfile();
           } else {
-            setOnboardError(res.message || 'Registration failed.');
-            showError(res.message || 'Registration failed.');
+            const errMsg = res?.message || 'Registration failed.';
+            setOnboardError(errMsg);
+            showError(errMsg);
           }
         }
       } catch (err) {
-        console.error('Merchant launch error:', err);
+        console.error('[AUTH] Merchant launch error:', err.message || err);
         const errMsg = err.message || 'Failed to launch merchant store. Please verify your connection.';
         setOnboardError(errMsg);
         showError(errMsg);

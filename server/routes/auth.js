@@ -15,31 +15,141 @@ const generateToken = (user) => {
   );
 };
 
-// Customer / General Registration
+// Helper to validate email format
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+// Customer / Merchant / General Registration
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role = 'customer', storeName, description } = req.body;
+    const { name, email, password, role = 'customer', storeName, description, phone, businessAddress, taxId } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Name, email and password are required.' });
+    const sanitizedName = (name || '').trim();
+    const sanitizedEmail = (email || '').trim().toLowerCase();
+    const sanitizedStoreName = (storeName || '').trim();
+
+    console.log(`[AUTH] Registration request received: name="${sanitizedName}", email="${sanitizedEmail}", role="${role}", store="${sanitizedStoreName}"`);
+
+    // 1. Basic validation
+    if (!sanitizedName || sanitizedName.length < 2) {
+      console.warn(`[AUTH] Registration rejected: invalid name "${sanitizedName}"`);
+      return res.status(400).json({ success: false, message: 'Please provide a valid full name (at least 2 characters).' });
     }
 
-    const existingUser = db.findOne('users', u => u.email.toLowerCase() === email.toLowerCase());
+    if (!sanitizedEmail || !isValidEmail(sanitizedEmail)) {
+      console.warn(`[AUTH] Registration rejected: invalid email "${sanitizedEmail}"`);
+      return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
+    }
+
+    if (!password || typeof password !== 'string' || password.length < 4) {
+      console.warn(`[AUTH] Registration rejected: password too short for email "${sanitizedEmail}"`);
+      return res.status(400).json({ success: false, message: 'Password must be at least 4 characters long.' });
+    }
+
+    if (role === 'seller' && (!sanitizedStoreName || sanitizedStoreName.length < 2)) {
+      console.warn(`[AUTH] Merchant registration rejected: invalid store name "${sanitizedStoreName}"`);
+      return res.status(400).json({ success: false, message: 'Store or business name must be at least 2 characters long.' });
+    }
+
+    // 2. Duplicate Store Name Check
+    if (role === 'seller' && sanitizedStoreName) {
+      const existingStore = db.findOne('sellers', s => s.storeName.toLowerCase() === sanitizedStoreName.toLowerCase());
+      const existingUser = db.findOne('users', u => u.email.toLowerCase() === sanitizedEmail);
+      if (existingStore && (!existingUser || existingStore.userId !== existingUser.id)) {
+        console.warn(`[AUTH] Merchant registration rejected: store name "${sanitizedStoreName}" already exists`);
+        return res.status(400).json({
+          success: false,
+          message: `A merchant store with the name "${sanitizedStoreName}" is already registered. Please choose a unique store name.`
+        });
+      }
+    }
+
+    // 3. Duplicate User / Email Handling
+    const existingUser = db.findOne('users', u => u.email.toLowerCase() === sanitizedEmail);
     if (existingUser) {
-      return res.status(400).json({ success: false, message: 'An account with this email already exists.' });
+      // If user registering as seller with existing email, verify password to auto-upgrade
+      if (role === 'seller') {
+        const isMatch = bcrypt.compareSync(password, existingUser.password);
+        if (isMatch) {
+          console.log(`[AUTH] Existing user ${existingUser.id} (${sanitizedEmail}) upgrading to seller via merchant registration form.`);
+          
+          // Upgrade user to seller role
+          const updatedUser = db.update('users', existingUser.id, {
+            role: 'seller',
+            ...(sanitizedName && { name: sanitizedName }),
+            ...(phone && { phone: phone.trim() })
+          });
+
+          // Create or update seller profile
+          let sellerProfile = db.findOne('sellers', s => s.userId === existingUser.id);
+          const finalStoreName = sanitizedStoreName || `${existingUser.name}'s Store`;
+          if (!sellerProfile) {
+            sellerProfile = {
+              id: `sel_${uuidv4().substring(0, 8)}`,
+              userId: existingUser.id,
+              storeName: finalStoreName,
+              slug: finalStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+              logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(finalStoreName)}`,
+              banner: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80',
+              description: description || 'Authorized marketplace vendor providing verified authentic merchandise.',
+              rating: 5.0,
+              reviewCount: 0,
+              status: 'approved',
+              commissionRate: 10.0,
+              businessAddress: businessAddress || '100 Marketzo Commerce Ave',
+              phone: phone ? phone.trim() : (existingUser.phone || ''),
+              taxId: taxId || 'TAX-PENDING',
+              joinedAt: new Date().toISOString()
+            };
+            db.insert('sellers', sellerProfile);
+          } else {
+            sellerProfile = db.update('sellers', sellerProfile.id, {
+              storeName: finalStoreName,
+              slug: finalStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+              ...(description && { description }),
+              status: 'approved'
+            });
+          }
+
+          const token = generateToken(updatedUser);
+          const { password: _, ...safeUser } = updatedUser;
+
+          return res.status(200).json({
+            success: true,
+            message: 'Merchant store launched successfully! Welcome to your Merchant Portal.',
+            token,
+            user: safeUser,
+            seller: sellerProfile
+          });
+        } else {
+          console.warn(`[AUTH] Registration rejected: email "${sanitizedEmail}" already registered with different password.`);
+          return res.status(400).json({
+            success: false,
+            message: 'An account with this email already exists. Please sign in with your password to upgrade to a merchant store.'
+          });
+        }
+      } else {
+        console.warn(`[AUTH] Registration rejected: duplicate email "${sanitizedEmail}"`);
+        return res.status(400).json({
+          success: false,
+          message: 'An account with this email already exists. Please sign in instead.'
+        });
+      }
     }
 
+    // 4. Create New User
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
 
     const newUser = {
       id: `usr_${uuidv4().substring(0, 8)}`,
-      name,
-      email: email.toLowerCase(),
+      name: sanitizedName,
+      email: sanitizedEmail,
       password: hashedPassword,
       role: role === 'seller' ? 'seller' : 'customer',
-      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
-      phone: req.body.phone || '',
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sanitizedName)}`,
+      phone: phone ? phone.trim() : '',
       createdAt: new Date().toISOString()
     };
 
@@ -47,20 +157,22 @@ router.post('/register', async (req, res) => {
 
     let sellerProfile = null;
     if (role === 'seller') {
+      const finalStoreName = sanitizedStoreName || `${sanitizedName}'s Store`;
       sellerProfile = {
         id: `sel_${uuidv4().substring(0, 8)}`,
         userId: newUser.id,
-        storeName: storeName || `${name}'s Store`,
-        slug: (storeName || `${name}-store`).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(storeName || name)}`,
+        storeName: finalStoreName,
+        slug: finalStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(finalStoreName)}`,
         banner: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80',
         description: description || 'Authorized marketplace vendor providing verified authentic merchandise.',
         rating: 5.0,
         reviewCount: 0,
-        status: 'approved', // instantly approved for demo
+        status: 'approved',
         commissionRate: 10.0,
-        businessAddress: req.body.businessAddress || '100 Marketzo Commerce Ave',
-        taxId: req.body.taxId || 'TAX-PENDING',
+        businessAddress: businessAddress || '100 Marketzo Commerce Ave',
+        phone: phone ? phone.trim() : '',
+        taxId: taxId || 'TAX-PENDING',
         joinedAt: new Date().toISOString()
       };
       db.insert('sellers', sellerProfile);
@@ -73,24 +185,28 @@ router.post('/register', async (req, res) => {
     db.insert('notifications', {
       id: `notif_${uuidv4().substring(0, 8)}`,
       userId: newUser.id,
-      title: 'Welcome to Marketzo! 🛍️',
-      message: 'Explore millions of authentic products, exclusive flash discounts, and rapid delivery.',
+      title: role === 'seller' ? 'Welcome Merchant! 🏪' : 'Welcome to Marketzo! 🛍️',
+      message: role === 'seller'
+        ? `Your merchant store "${sellerProfile?.storeName}" is live and ready for listing products.`
+        : 'Explore millions of authentic products, exclusive flash discounts, and rapid delivery.',
       type: 'account',
       read: false,
-      link: '/',
+      link: role === 'seller' ? '/seller' : '/',
       createdAt: new Date().toISOString()
     });
 
+    console.log(`[AUTH] New user created successfully: id=${newUser.id}, email="${sanitizedEmail}", role="${newUser.role}"`);
+
     return res.status(201).json({
       success: true,
-      message: 'Account registered successfully!',
+      message: role === 'seller' ? 'Merchant store registered and launched successfully!' : 'Account registered successfully!',
       token,
       user: safeUser,
       seller: sellerProfile
     });
   } catch (err) {
-    console.error('Registration error:', err);
-    return res.status(500).json({ success: false, message: 'Server error during registration.' });
+    console.error('[AUTH] Registration server error:', err.message, err.stack);
+    return res.status(500).json({ success: false, message: 'Server error during registration. Please try again.' });
   }
 });
 

@@ -31,15 +31,25 @@ export const AuthModal = ({ isOpen, onClose, onNavigate, defaultMode = 'login' }
           onClose();
         }
       } else if (mode === 'register') {
+        const sanitizedName = (name || '').trim();
+        const sanitizedEmail = (email || '').trim().toLowerCase();
+        const sanitizedStoreName = (storeName || '').trim();
+
+        if (role === 'seller' && (!sanitizedStoreName || sanitizedStoreName.length < 2)) {
+          showError('Please enter a valid store or business name (at least 2 characters).');
+          setIsLoading(false);
+          return;
+        }
+
         const res = await register({
-          name,
-          email,
+          name: sanitizedName,
+          email: sanitizedEmail,
           password,
           role,
-          storeName: role === 'seller' ? storeName : undefined
+          storeName: role === 'seller' ? sanitizedStoreName : undefined
         });
-        if (res.success) {
-          showSuccess('Account registered successfully!');
+        if (res && res.success) {
+          showSuccess(res.message || 'Account registered successfully!');
           onClose();
           if (role === 'seller') onNavigate('seller');
         }
