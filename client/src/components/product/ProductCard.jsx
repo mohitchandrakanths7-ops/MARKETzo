@@ -211,15 +211,15 @@ export const ProductCard = ({ product, onNavigate, layout = 'grid' }) => {
           <div className="grid grid-cols-2 gap-1.5">
             <button
               onClick={handleAddToCart}
-              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1"
+              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Add</span>
+              <span>Add</span>
             </button>
 
             <button
               onClick={handleBuyNow}
-              className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1"
+              className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1 cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5" />
               <span>Buy</span>

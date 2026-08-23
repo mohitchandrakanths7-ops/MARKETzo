@@ -56,9 +56,17 @@ import { ErrorBoundary } from '../components/common/ErrorBoundary';
 import { api } from '../services/api';
 
 export const SellerDashboard = ({ onNavigate }) => {
-  const { user, isSeller, seller, refreshProfile } = useAuth();
+  const { user, isSeller, seller, refreshProfile, becomeSeller, register, demoLogin } = useAuth();
   const { currentCurrency, activeCurrencyInfo, formatPrice } = useCurrency();
   const { showSuccess, showError, showInfo } = useToast();
+
+  // Merchant Onboarding State
+  const [storeNameInput, setStoreNameInput] = useState('');
+  const [merchantNameInput, setMerchantNameInput] = useState('');
+  const [merchantEmailInput, setMerchantEmailInput] = useState('');
+  const [merchantPasswordInput, setMerchantPasswordInput] = useState('');
+  const [isLaunchingStore, setIsLaunchingStore] = useState(false);
+  const [onboardError, setOnboardError] = useState('');
 
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'products' | 'orders' | 'settings'
   const [metrics, setMetrics] = useState(null);
@@ -588,44 +596,228 @@ export const SellerDashboard = ({ onNavigate }) => {
 
   // Onboarding wizard if not registered as seller
   if (!isSeller) {
+    const handleLaunchStore = async (e) => {
+      e?.preventDefault();
+      setOnboardError('');
+
+      if (!storeNameInput || storeNameInput.trim().length < 2) {
+        setOnboardError('Please enter a valid store or business name (at least 2 characters).');
+        showError('Please enter a valid store name (at least 2 characters).');
+        return;
+      }
+
+      setIsLaunchingStore(true);
+      try {
+        if (user) {
+          // Logged-in user upgrading to seller
+          const res = await becomeSeller({
+            storeName: storeNameInput.trim()
+          });
+
+          if (res.success) {
+            showSuccess(res.message || 'Merchant store created successfully! Welcome to your Merchant Portal.');
+            await refreshProfile();
+          } else {
+            setOnboardError(res.message || 'Failed to launch merchant store.');
+            showError(res.message || 'Failed to launch merchant store.');
+          }
+        } else {
+          // Unauthenticated guest creating new merchant account
+          if (!merchantNameInput.trim() || !merchantEmailInput.trim() || !merchantPasswordInput) {
+            setOnboardError('Please fill in your name, email, and password to create your merchant account.');
+            showError('Please complete all merchant registration fields.');
+            setIsLaunchingStore(false);
+            return;
+          }
+
+          const res = await register({
+            name: merchantNameInput.trim(),
+            email: merchantEmailInput.trim(),
+            password: merchantPasswordInput,
+            role: 'seller',
+            storeName: storeNameInput.trim()
+          });
+
+          if (res.success) {
+            showSuccess('Merchant store registered and launched successfully!');
+            await refreshProfile();
+          } else {
+            setOnboardError(res.message || 'Registration failed.');
+            showError(res.message || 'Registration failed.');
+          }
+        }
+      } catch (err) {
+        console.error('Merchant launch error:', err);
+        const errMsg = err.message || 'Failed to launch merchant store. Please verify your connection.';
+        setOnboardError(errMsg);
+        showError(errMsg);
+      } finally {
+        setIsLaunchingStore(false);
+      }
+    };
+
+    const handleQuickDemoMerchant = async () => {
+      setIsLaunchingStore(true);
+      try {
+        const res = await demoLogin('seller');
+        if (res.success) {
+          showSuccess(res.message || 'Signed in as Verified Demo Merchant!');
+          await refreshProfile();
+        }
+      } catch (err) {
+        showError('Demo merchant login failed.');
+      } finally {
+        setIsLaunchingStore(false);
+      }
+    };
+
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="w-20 h-20 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6 animate-in fade-in zoom-in-95">
+        <div className="w-20 h-20 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner border border-amber-100">
           <Store className="w-10 h-10" />
         </div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Become a Verified Marketzo Merchant</h1>
-        <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-          Reach millions of shoppers with low commission rates, rapid courier pickups, and instant payouts.
-        </p>
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            Become a Verified Marketzo Merchant
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed mt-2">
+            Reach millions of shoppers with low commission rates, rapid courier pickups, and instant payouts.
+          </p>
+        </div>
 
-        <div className="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm max-w-md mx-auto text-left space-y-4">
+        <div className="p-8 bg-white rounded-3xl border border-slate-200 shadow-xl max-w-lg mx-auto text-left space-y-5">
+          {user ? (
+            <div className="p-3.5 bg-indigo-50/70 rounded-2xl border border-indigo-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm uppercase shrink-0">
+                {user.name ? user.name[0] : 'U'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[11px] font-bold text-indigo-900 flex items-center gap-1.5">
+                  <span>Upgrading Account:</span>
+                  <span className="font-extrabold truncate">{user.name}</span>
+                </div>
+                <div className="text-[10px] text-indigo-600 truncate">{user.email}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-3 bg-amber-50/80 rounded-2xl border border-amber-200 text-xs text-amber-900 font-semibold flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Create your merchant credentials to launch your store</span>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Your Full Name</label>
+                <input
+                  type="text"
+                  value={merchantNameInput}
+                  onChange={(e) => setMerchantNameInput(e.target.value)}
+                  placeholder="e.g. Alex Henderson"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Business Email</label>
+                <input
+                  type="email"
+                  value={merchantEmailInput}
+                  onChange={(e) => setMerchantEmailInput(e.target.value)}
+                  placeholder="merchant@yourdomain.com"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Account Password</label>
+                <input
+                  type="password"
+                  value={merchantPasswordInput}
+                  onChange={(e) => setMerchantPasswordInput(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="text-xs font-bold text-slate-700 block mb-1">Store / Business Name</label>
-            <input
-              type="text"
-              id="sellerStoreNameInput"
-              placeholder="e.g. Apex Tech Labs"
-              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-indigo-600"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="sellerStoreNameInput"
+                value={storeNameInput}
+                onChange={(e) => {
+                  setStoreNameInput(e.target.value);
+                  if (onboardError) setOnboardError('');
+                }}
+                placeholder="e.g. Apex Tech Labs"
+                className="w-full px-3.5 py-3 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 pr-10"
+              />
+              <Store className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">This will be your public vendor brand name on MARKETzo.</p>
           </div>
 
+          {onboardError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-700 flex items-center gap-2 animate-in fade-in">
+              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
+              <span>{onboardError}</span>
+            </div>
+          )}
+
           <button
-            onClick={async () => {
-              const nameInput = document.getElementById('sellerStoreNameInput').value;
-              if (!nameInput) {
-                showError('Please enter your store name.');
-                return;
-              }
-              const res = await api.updateProfile({ storeName: nameInput });
-              if (res.success) {
-                showSuccess('Store created!');
-                await refreshProfile();
-              }
-            }}
-            className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md cursor-pointer"
+            id="launchMerchantStoreButton"
+            onClick={handleLaunchStore}
+            disabled={isLaunchingStore}
+            className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg hover:shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Launch My Merchant Store
+            {isLaunchingStore ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Launching Your Store...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 text-slate-950" />
+                <span>Launch My Merchant Store</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </>
+            )}
           </button>
+
+          {/* Quick 1-Click Demo Shortcut */}
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Want to test immediately?</span>
+            <button
+              onClick={handleQuickDemoMerchant}
+              type="button"
+              className="text-amber-600 hover:text-amber-700 font-bold underline cursor-pointer"
+            >
+              1-Click Demo Merchant
+            </button>
+          </div>
+        </div>
+
+        {/* Merchant Benefits Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto pt-4 text-center">
+          <div className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <div className="text-amber-600 font-black text-base">0%</div>
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Setup Fee</div>
+          </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <div className="text-emerald-600 font-black text-base">Instant</div>
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Store Activation</div>
+          </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <div className="text-indigo-600 font-black text-base">24/7</div>
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Seller Portal</div>
+          </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <div className="text-purple-600 font-black text-base">Rapid</div>
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Courier Pickups</div>
+          </div>
         </div>
       </div>
     );

@@ -8,9 +8,6 @@ dotenv.config();
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-app.get('/', (req, res) => {
-  res.send('MARKETzo is live! 🚀');
-});
 
 // Initialize Database
 const db = require('./config/database');
@@ -18,7 +15,7 @@ const db = require('./config/database');
 // Middlewares
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -56,6 +53,15 @@ app.use('/api/ai', require('./routes/ai'));
 app.use('/api/visualsearch', require('./routes/visualsearch'));
 app.use('/api/follows', require('./routes/follows'));
 app.use('/api/wholesale', require('./routes/wholesale'));
+
+// API Base endpoint
+app.get('/api', (req, res) => {
+  res.json({
+    success: true,
+    message: 'MARKETzo Multi-Vendor Marketplace API is live! 🚀',
+    docs: '/api/health'
+  });
+});
 
 // System Health Check
 app.get('/api/health', (req, res) => {
@@ -98,9 +104,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-const server = app.listen(PORT, () => {
+const HOST = '0.0.0.0';
+const server = app.listen(PORT, HOST, () => {
   console.log(`=======================================================`);
-  console.log(`🚀 MARKETZO API Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 MARKETZO API Server is running on http://${HOST}:${PORT}`);
   console.log(`🛍️ Multi-Vendor Marketplace API active and ready`);
   console.log(`=======================================================`);
 });

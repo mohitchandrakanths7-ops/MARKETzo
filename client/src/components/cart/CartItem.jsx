@@ -12,12 +12,12 @@ export const CartItem = ({
   const { formatPrice } = useCurrency();
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-slate-200/90 shadow-sm transition-all hover:border-slate-300">
+    <div className="flex flex-row gap-3 sm:gap-4 p-3.5 sm:p-5 bg-white rounded-2xl border border-slate-200/90 shadow-sm transition-all hover:border-slate-300">
       
       {/* Thumbnail */}
       <div 
         onClick={() => onNavigate('product-detail', { id: item.productId || item.slug })}
-        className="w-full sm:w-28 h-28 rounded-xl bg-slate-100 overflow-hidden shrink-0 cursor-pointer"
+        className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl bg-slate-100 overflow-hidden shrink-0 cursor-pointer"
       >
         <img
           src={item.image}

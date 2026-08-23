@@ -67,6 +67,23 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+  const becomeSeller = async (data) => {
+    const res = await api.becomeSeller(data);
+    if (res.success) {
+      if (res.token) {
+        localStorage.setItem('marketzo_token', res.token);
+        setToken(res.token);
+      }
+      if (res.user) {
+        setUser(res.user);
+      }
+      if (res.seller) {
+        setSeller(res.seller);
+      }
+    }
+    return res;
+  };
+
   const logout = () => {
     localStorage.removeItem('marketzo_token');
     setToken(null);
@@ -98,6 +115,7 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       demoLogin,
+      becomeSeller,
       logout,
       refreshProfile,
       setUser,

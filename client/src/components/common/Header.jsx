@@ -57,6 +57,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
   const [categories, setCategories] = useState([]);
   const [showCatMenu, setShowCatMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifs, setUnreadNotifs] = useState(0);
@@ -148,32 +149,32 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-900 text-white shadow-md border-b border-slate-800">
       {/* Top micro bar for announcements & currency selector */}
-      <div className="bg-slate-950 px-4 py-1.5 text-xs text-slate-300 border-b border-slate-800/80 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5 font-medium text-amber-400">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Summer Super Sale: Extra 25% Off with code <strong>SUMMER25</strong></span>
+      <div className="bg-slate-950 px-3 sm:px-4 py-1.5 text-xs text-slate-300 border-b border-slate-800/80 flex items-center justify-between gap-2 overflow-hidden">
+        <div className="flex items-center gap-2 sm:gap-4 truncate">
+          <span className="flex items-center gap-1.5 font-medium text-amber-400 truncate text-[11px] sm:text-xs">
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Summer Sale: Extra 25% Off with code <strong>SUMMER25</strong></span>
           </span>
-          <span className="hidden md:inline-block text-slate-600">|</span>
-          <span className="hidden md:inline-block text-slate-400">
+          <span className="hidden lg:inline-block text-slate-600">|</span>
+          <span className="hidden lg:inline-block text-slate-400 truncate">
             100% Genuine Products • 2-Day Express Shipping • Buyer Protection
           </span>
         </div>
 
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
           
           {/* Currency / Location Selector Dropdown */}
           <div className="relative" ref={currencyRef}>
             <button
               onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-xs"
               title="Select Marketplace Currency"
             >
               <span className="text-sm">{activeCurrencyInfo?.flag}</span>
-              <span>{currentCurrency}</span>
+              <span className="hidden min-[400px]:inline">{currentCurrency}</span>
               <span className="text-amber-400 font-bold">{activeCurrencyInfo?.symbol}</span>
               {isAuto && (
-                <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
+                <span className="hidden sm:inline-block text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
                   AUTO
                 </span>
               )}
@@ -244,7 +245,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
           {/* Quick links to seller / admin */}
           <button
             onClick={() => onNavigate('seller')}
-            className="flex items-center gap-1.5 text-indigo-300 hover:text-white transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 text-indigo-300 hover:text-white transition-colors cursor-pointer"
           >
             <Store className="w-3.5 h-3.5" />
             <span>{isSeller ? 'Seller Portal' : 'Sell on Marketzo'}</span>
@@ -253,7 +254,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
           {isAdmin && (
             <button
               onClick={() => onNavigate('admin')}
-              className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+              className="hidden sm:flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
             >
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Admin</span>
@@ -263,12 +264,22 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 gap-4 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-18 gap-2 sm:gap-4 lg:gap-8">
           
-          {/* Logo & Tagline */}
-          <div onClick={() => onNavigate('home')} className="shrink-0 cursor-pointer">
-            <MarketzoLogo showTagline={true} light={true} />
+          {/* Mobile Hamburger Button & Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              onClick={() => setShowMobileNav(true)}
+              className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div onClick={() => onNavigate('home')} className="shrink-0 cursor-pointer">
+              <MarketzoLogo showTagline={true} light={true} />
+            </div>
           </div>
 
           {/* Location Delivery Selector (Desktop) */}
@@ -283,12 +294,12 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
             </div>
           </button>
 
-          {/* Search Bar with live autocomplete */}
-          <div ref={searchRef} className="flex-1 relative max-w-2xl">
+          {/* Desktop Search Bar with live autocomplete */}
+          <div ref={searchRef} className="hidden md:block flex-1 relative max-w-2xl">
             <form onSubmit={handleSearchSubmit} className="flex items-center rounded-xl bg-white text-slate-900 overflow-hidden shadow-inner border-2 border-transparent focus-within:border-indigo-500 transition-all">
               
               {/* Category dropdown prefix */}
-              <div className="relative hidden md:block bg-slate-100 border-r border-slate-200">
+              <div className="relative hidden lg:block bg-slate-100 border-r border-slate-200">
                 <select
                   value={selectedCat}
                   onChange={(e) => setSelectedCat(e.target.value)}
@@ -311,7 +322,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                   setShowSuggestions(true);
                 }}
                 onFocus={() => setShowSuggestions(true)}
-                placeholder="Search across 50,000+ products, brands, electronics..."
+                placeholder="Search products, brands, electronics..."
                 className="w-full py-2.5 px-3.5 text-sm bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
               />
 
@@ -607,22 +618,58 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
             ) : (
               <button
                 onClick={onOpenAuthModal}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold transition-all shadow-sm"
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold transition-all shadow-sm cursor-pointer"
               >
                 <User className="w-4 h-4 text-indigo-400" />
-                <span>Sign In</span>
+                <span className="hidden min-[480px]:inline">Sign In</span>
               </button>
             )}
           </div>
         </div>
+
+        {/* Dedicated Full-Width Mobile Search Bar (< md screens) */}
+        <div className="md:hidden pb-3 pt-1">
+          <form onSubmit={handleSearchSubmit} className="flex items-center rounded-xl bg-white text-slate-900 overflow-hidden shadow-md border border-slate-700/50 focus-within:border-indigo-500">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              placeholder="Search products, brands, categories..."
+              className="w-full py-2.5 px-3 text-xs bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
+            />
+            {searchTerm && (
+              <button type="button" onClick={() => setSearchTerm('')} className="p-1 text-slate-400 hover:text-slate-600">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowVisualSearchModal(true)}
+              title="Search with Camera"
+              className="p-2 text-slate-400 hover:text-indigo-600"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2.5 flex items-center justify-center shrink-0 cursor-pointer"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* Categories secondary nav strip */}
-      <div className="bg-slate-800/90 backdrop-blur-md px-4 sm:px-6 lg:px-8 border-t border-slate-700/60 overflow-x-auto no-scrollbar">
+      <div className="bg-slate-800/90 backdrop-blur-md px-3 sm:px-6 lg:px-8 border-t border-slate-700/60 overflow-x-auto no-scrollbar">
         <div className="max-w-7xl mx-auto flex items-center gap-1 py-1.5 text-xs text-slate-300 font-medium whitespace-nowrap">
           <button
             onClick={() => onNavigate('products', {})}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700 text-white font-bold bg-slate-900/60 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-700 text-white font-bold bg-slate-900/60 transition-colors shrink-0"
           >
             <Menu className="w-3.5 h-3.5 text-indigo-400" />
             <span>All Products</span>
@@ -632,7 +679,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
             <button
               key={cat.id}
               onClick={() => onNavigate('products', { category: cat.slug || cat.id })}
-              className="px-3 py-1.5 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-700 hover:text-white transition-colors shrink-0"
             >
               {cat.name}
             </button>
@@ -640,13 +687,164 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
 
           <button
             onClick={() => onNavigate('products', { minDiscount: 20 })}
-            className="px-3 py-1.5 rounded-lg text-amber-400 hover:bg-slate-700 font-semibold flex items-center gap-1"
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg text-amber-400 hover:bg-slate-700 font-semibold flex items-center gap-1 shrink-0"
           >
             <Sparkles className="w-3 h-3" />
             <span>Hot Deals</span>
           </button>
         </div>
       </div>
+
+      {/* Mobile Slide-Over Navigation Drawer */}
+      {showMobileNav && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop */}
+          <div 
+            onClick={() => setShowMobileNav(false)}
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs transition-opacity animate-in fade-in"
+          />
+
+          {/* Drawer content */}
+          <div className="relative w-4/5 max-w-xs bg-slate-900 text-white h-full shadow-2xl z-10 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-300 border-r border-slate-800">
+            <div>
+              {/* Header */}
+              <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <MarketzoLogo showTagline={false} light={true} />
+                <button
+                  onClick={() => setShowMobileNav(false)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* User profile banner in drawer */}
+              <div className="p-4 bg-slate-800/50 border-b border-slate-800">
+                {isAuthenticated ? (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'User')}`}
+                      alt={user?.name}
+                      className="w-10 h-10 rounded-full border border-indigo-400 object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-sm text-white truncate">{user?.name}</div>
+                      <div className="text-[11px] text-slate-400 truncate">{user?.email}</div>
+                      <span className="inline-block mt-0.5 px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-extrabold uppercase">
+                        {user?.role}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="text-xs font-bold text-slate-300">Welcome to MARKETzo!</div>
+                    <button
+                      onClick={() => {
+                        setShowMobileNav(false);
+                        onOpenAuthModal();
+                      }}
+                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold text-center"
+                    >
+                      Sign In / Register
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation Links */}
+              <div className="p-3 space-y-1 text-xs font-semibold">
+                <div className="text-[10px] uppercase font-black text-slate-500 px-3 py-1.5 tracking-wider">
+                  Marketplace Portals
+                </div>
+
+                <button
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    onNavigate('seller');
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 text-amber-300 font-bold text-left transition-colors"
+                >
+                  <Store className="w-4 h-4 text-amber-400" />
+                  <span>{isSeller ? 'Seller Portal Dashboard' : 'Become a Marketzo Merchant'}</span>
+                </button>
+
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      setShowMobileNav(false);
+                      onNavigate('admin');
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 text-emerald-300 font-bold text-left transition-colors"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Admin Control Center</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    setShowAiAssistant(true);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 text-indigo-300 text-left transition-colors"
+                >
+                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <span>AI Shopping Assistant</span>
+                </button>
+
+                <div className="text-[10px] uppercase font-black text-slate-500 px-3 pt-3 py-1.5 tracking-wider">
+                  Shop Departments
+                </div>
+
+                <button
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    onNavigate('products', {});
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-left"
+                >
+                  <Menu className="w-4 h-4 text-slate-400" />
+                  <span>All Products Catalog</span>
+                </button>
+
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setShowMobileNav(false);
+                      onNavigate('products', { category: cat.slug || cat.id });
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-300 text-left"
+                  >
+                    <span>{cat.name}</span>
+                    {cat.productCount && (
+                      <span className="text-[10px] text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
+                        {cat.productCount}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer actions in drawer */}
+            {isAuthenticated && (
+              <div className="p-4 border-t border-slate-800 bg-slate-950">
+                <button
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    logout();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 text-rose-400 hover:bg-rose-950/40 rounded-xl text-xs font-bold transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Pincode / Location modal */}
       {showLocationModal && (

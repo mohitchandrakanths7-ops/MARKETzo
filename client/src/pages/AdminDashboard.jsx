@@ -192,7 +192,7 @@ export const AdminDashboard = ({ onNavigate }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 no-scrollbar whitespace-nowrap">
         {[
           { id: 'overview', label: 'Platform Executive Overview', icon: Activity },
           { id: 'sellers', label: `Sellers & Stores (${sellers.length})`, icon: Store },

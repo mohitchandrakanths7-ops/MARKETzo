@@ -168,6 +168,84 @@ router.get('/me', authenticate, (req, res) => {
   });
 });
 
+// Upgrade / Launch Merchant Store
+router.post('/become-seller', authenticate, (req, res) => {
+  try {
+    const { storeName, description, phone, logo, banner, businessAddress, taxId } = req.body;
+
+    if (!storeName || storeName.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Store or business name must be at least 2 characters long.'
+      });
+    }
+
+    const trimmedStoreName = storeName.trim();
+
+    // 1. Upgrade user role to 'seller' if not already
+    const updatedUser = db.update('users', req.user.id, {
+      role: 'seller',
+      ...(phone !== undefined && { phone: phone ? phone.trim() : req.user.phone })
+    });
+
+    // 2. Check if a seller profile already exists
+    let seller = db.findOne('sellers', s => s.userId === req.user.id);
+
+    if (seller) {
+      // Update existing seller profile
+      seller = db.update('sellers', seller.id, {
+        storeName: trimmedStoreName,
+        slug: trimmedStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        ...(description !== undefined && { description: description.trim() }),
+        ...(logo && { logo }),
+        ...(banner && { banner }),
+        ...(phone !== undefined && { phone: phone ? phone.trim() : (seller.phone || req.user.phone || '') }),
+        ...(businessAddress && { businessAddress }),
+        ...(taxId && { taxId }),
+        status: 'approved'
+      });
+    } else {
+      // Create new seller profile
+      seller = {
+        id: `sel_${uuidv4().substring(0, 8)}`,
+        userId: req.user.id,
+        storeName: trimmedStoreName,
+        slug: trimmedStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        logo: logo || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(trimmedStoreName)}`,
+        banner: banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80',
+        description: description || 'Authorized marketplace vendor providing verified authentic merchandise.',
+        rating: 5.0,
+        reviewCount: 0,
+        status: 'approved',
+        commissionRate: 10.0,
+        businessAddress: businessAddress || '100 Marketzo Commerce Ave',
+        phone: phone ? phone.trim() : (req.user.phone || ''),
+        taxId: taxId || 'TAX-PENDING',
+        joinedAt: new Date().toISOString()
+      };
+      db.insert('sellers', seller);
+    }
+
+    // 3. Issue fresh JWT token with upgraded 'seller' role
+    const token = generateToken(updatedUser);
+    const { password: _, ...safeUser } = updatedUser;
+
+    return res.status(200).json({
+      success: true,
+      message: 'Merchant store launched successfully! Welcome to your Merchant Portal.',
+      token,
+      user: safeUser,
+      seller
+    });
+  } catch (err) {
+    console.error('Become seller error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while launching merchant store.'
+    });
+  }
+});
+
 // Update Profile
 router.put('/profile', authenticate, (req, res) => {
   try {
@@ -177,14 +255,20 @@ router.put('/profile', authenticate, (req, res) => {
       return res.status(400).json({ success: false, message: 'Full name must be at least 2 characters long.' });
     }
 
+    let isUpgradingToSeller = false;
+    if (storeName && storeName.trim().length >= 2 && req.user.role !== 'seller') {
+      isUpgradingToSeller = true;
+    }
+
     const updated = db.update('users', req.user.id, {
       ...(name && { name: name.trim() }),
       ...(phone !== undefined && { phone: phone ? phone.trim() : '' }),
-      ...(avatar !== undefined && { avatar })
+      ...(avatar !== undefined && { avatar }),
+      ...(isUpgradingToSeller && { role: 'seller' })
     });
 
     let seller = null;
-    if (req.user.role === 'seller') {
+    if (req.user.role === 'seller' || isUpgradingToSeller) {
       const existingSeller = db.findOne('sellers', s => s.userId === req.user.id);
       if (existingSeller) {
         seller = db.update('sellers', existingSeller.id, {
@@ -193,12 +277,34 @@ router.put('/profile', authenticate, (req, res) => {
           ...(storeLogo && { logo: storeLogo }),
           ...(phone !== undefined && { phone: phone ? phone.trim() : '' })
         });
+      } else if (storeName && storeName.trim()) {
+        const trimmedStoreName = storeName.trim();
+        seller = {
+          id: `sel_${uuidv4().substring(0, 8)}`,
+          userId: req.user.id,
+          storeName: trimmedStoreName,
+          slug: trimmedStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          logo: storeLogo || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(trimmedStoreName)}`,
+          banner: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80',
+          description: storeDescription || 'Authorized marketplace vendor providing verified authentic merchandise.',
+          rating: 5.0,
+          reviewCount: 0,
+          status: 'approved',
+          commissionRate: 10.0,
+          businessAddress: '100 Marketzo Commerce Ave',
+          phone: phone ? phone.trim() : (req.user.phone || ''),
+          taxId: 'TAX-PENDING',
+          joinedAt: new Date().toISOString()
+        };
+        db.insert('sellers', seller);
       }
     }
 
+    const token = generateToken(updated);
     const { password: _, ...safeUser } = updated;
     res.json({
       success: true,
+      token,
       user: safeUser,
       seller,
       message: 'Profile updated successfully!'

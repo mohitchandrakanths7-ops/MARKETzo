@@ -1,5 +1,9 @@
-const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
-const API_BASE = RAW_BASE ? `${RAW_BASE.replace(/\/+$/, '')}/api` : '/api';
+const RAW_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').trim();
+let API_BASE = '/api';
+if (RAW_BASE) {
+  const cleanBase = RAW_BASE.replace(/\/+$/, '');
+  API_BASE = cleanBase.endsWith('/api') ? cleanBase : `${cleanBase}/api`;
+}
 
 export async function request(endpoint, options = {}) {
   const token = localStorage.getItem('marketzo_token');
@@ -38,6 +42,7 @@ export const api = {
   login: (credentials) => request('/auth/login', { method: 'POST', body: credentials }),
   register: (userData) => request('/auth/register', { method: 'POST', body: userData }),
   demoLogin: (role) => request('/auth/demo-login', { method: 'POST', body: { role } }),
+  becomeSeller: (data) => request('/auth/become-seller', { method: 'POST', body: data }),
   getProfile: () => request('/auth/me'),
   updateProfile: (data) => request('/auth/profile', { method: 'PUT', body: data }),
 
