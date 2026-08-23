@@ -1,0 +1,31 @@
+{
+  "name": "marketzo",
+  "version": "1.0.0",
+  "description": "MARKETZO - Multi-Vendor E-Commerce Marketplace",
+  "main": "server/index.js",
+  "scripts": {
+    "server": "node server/index.js",
+    "client": "npm --prefix client run dev",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "build": "npm --prefix client run build",
+    "start": "node server/index.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "marketplace",
+    "multi-vendor",
+    "react",
+    "marketzo"
+  ],
+  "author": "Marketzo Team",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^11.1.0"
+  }
+}
