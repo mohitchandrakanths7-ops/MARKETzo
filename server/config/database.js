@@ -137,31 +137,41 @@ class Database {
   }
 
   async connectPostgres(dbUrl) {
-    try {
-      const config = dbUrl
-        ? {
-            connectionString: dbUrl,
-            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
-          }
-        : {
-            host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
-            port: parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10),
-            user: process.env.PGUSER || process.env.DB_USER || 'postgres',
-            password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
-            database: process.env.PGDATABASE || process.env.DB_NAME || 'marketzo_db',
-            ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
-          };
+    const isRenderInternal = dbUrl && (dbUrl.includes('.internal') || dbUrl.includes('dpg-'));
+    const initialSsl = isRenderInternal ? undefined : (process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined);
 
-      this.pgPool = new PgPool(config);
-      const res = await this.pgPool.query('SELECT NOW() as now');
-      if (res && res.rows.length > 0) {
-        this.dbEngine = 'postgres';
-        this.isConnected = true;
-        console.log('🐘 [POSTGRESQL] Successfully connected to PostgreSQL Database on Render / Cloud.');
-        
-        await this.syncPostgresSchema();
-        await this.syncFromPostgres();
+    let config = dbUrl
+      ? { connectionString: dbUrl, ssl: initialSsl }
+      : {
+          host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
+          port: parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10),
+          user: process.env.PGUSER || process.env.DB_USER || 'postgres',
+          password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
+          database: process.env.PGDATABASE || process.env.DB_NAME || 'marketzo_db',
+          ssl: initialSsl
+        };
+
+    try {
+      try {
+        this.pgPool = new PgPool(config);
+        await this.pgPool.query('SELECT NOW() as now');
+      } catch (connErr) {
+        // If SSL was rejected or required, toggle SSL and retry
+        console.warn(`[POSTGRESQL] First connection attempt (${connErr.message}). Retrying with alternate SSL setting...`);
+        if (this.pgPool) {
+          try { await this.pgPool.end(); } catch (e) {}
+        }
+        config.ssl = config.ssl ? undefined : { rejectUnauthorized: false };
+        this.pgPool = new PgPool(config);
+        await this.pgPool.query('SELECT NOW() as now');
       }
+
+      this.dbEngine = 'postgres';
+      this.isConnected = true;
+      console.log('🐘 [POSTGRESQL] Successfully connected to PostgreSQL Database on Render.');
+      
+      await this.syncPostgresSchema();
+      await this.syncFromPostgres();
     } catch (err) {
       this.isConnected = false;
       console.warn(`⚠️ [POSTGRESQL] Connection notice: ${err.message}.`);
