@@ -18,6 +18,9 @@
     "react",
     "marketzo"
   ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "author": "Marketzo Team",
   "license": "ISC",
   "dependencies": {
