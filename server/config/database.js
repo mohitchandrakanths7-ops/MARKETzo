@@ -32,6 +32,27 @@ const {
 const DB_DIR = path.join(__dirname, '..', 'database');
 const DB_FILE = path.join(DB_DIR, 'marketzo-db.json');
 
+function isDemoProduct(p) {
+  if (!p) return false;
+  if (p.id?.startsWith('prod_')) return true;
+  if (p.sellerId === 'sel_01' || p.sellerId === 'sel_02') return true;
+  const name = (p.name || '').toLowerCase();
+  return (
+    name.includes('sonicpulse') ||
+    name.includes('zenith blade') ||
+    name.includes('aurora ultra') ||
+    name.includes('nordiccraft') ||
+    name.includes('botanica lab') ||
+    name.includes('apexfit') ||
+    name.includes('lumière') ||
+    name.includes('lumiere') ||
+    name.includes('vanguard') ||
+    name.includes('roboquest') ||
+    name.includes('wireless bluetooth') ||
+    name.includes('earbuds with charging')
+  );
+}
+
 class Database {
   constructor() {
     this.data = {
@@ -79,9 +100,9 @@ class Database {
         this.data = {
           ...this.data,
           ...parsed,
-          users: (parsed.users || []).filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com')),
-          sellers: (parsed.sellers || []).filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics')),
-          products: (parsed.products || []).filter(p => !p.id?.startsWith('prod_') && p.sellerId !== 'sel_01' && p.sellerId !== 'sel_02')
+          users: (parsed.users || []).filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com') && !u.name?.includes('Jordan Belfort') && !u.name?.includes('Samantha Ray')),
+          sellers: (parsed.sellers || []).filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics') && !s.storeName?.includes('Mr.MAX')),
+          products: (parsed.products || []).filter(p => !isDemoProduct(p))
         };
       } catch (err) {
         this.seedInitialData();
@@ -190,7 +211,9 @@ class Database {
         console.log('✅ [POSTGRESQL] PostgreSQL tables and indexes verified.');
       }
       try {
-        await this.pgPool.query(`DELETE FROM products WHERE id LIKE 'prod_%' OR "sellerId" IN ('sel_01', 'sel_02')`);
+        await this.pgPool.query(`DELETE FROM products WHERE id LIKE 'prod_%' OR "sellerId" IN ('sel_01', 'sel_02') OR name LIKE '%SonicPulse%' OR name LIKE '%Zenith%' OR name LIKE '%Aurora%' OR name LIKE '%NordicCraft%' OR name LIKE '%Botanica%' OR name LIKE '%ApexFit%' OR name LIKE '%Lumière%' OR name LIKE '%Vanguard%' OR name LIKE '%RoboQuest%' OR name LIKE '%Wireless Bluetooth%'`);
+        await this.pgPool.query(`DELETE FROM sellers WHERE id IN ('sel_01', 'sel_02') OR "storeName" LIKE '%Solaris%' OR "storeName" LIKE '%Mr.MAX%'`);
+        await this.pgPool.query(`DELETE FROM users WHERE email LIKE '%example.com%' OR email LIKE '%merchantstore.com%'`);
       } catch (e) {}
     } catch (err) {
       console.warn('[POSTGRESQL] Schema sync notice:', err.message);
@@ -207,13 +230,13 @@ class Database {
             try {
               let parsed = JSON.parse(row.data_json);
               if (row.collection_name === 'products' && Array.isArray(parsed)) {
-                parsed = parsed.filter(p => !p.id?.startsWith('prod_') && p.sellerId !== 'sel_01' && p.sellerId !== 'sel_02');
+                parsed = parsed.filter(p => !isDemoProduct(p));
               }
               if (row.collection_name === 'users' && Array.isArray(parsed)) {
-                parsed = parsed.filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com'));
+                parsed = parsed.filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com') && !u.name?.includes('Jordan Belfort') && !u.name?.includes('Samantha Ray'));
               }
               if (row.collection_name === 'sellers' && Array.isArray(parsed)) {
-                parsed = parsed.filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics'));
+                parsed = parsed.filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics') && !s.storeName?.includes('Mr.MAX'));
               }
               this.data[row.collection_name] = parsed;
             } catch (e) {}
@@ -274,7 +297,8 @@ class Database {
         this.isConnected = true;
         console.log('🐬 [MYSQL] Connected to MySQL database.');
         try {
-          await this.mysqlPool.query(`DELETE FROM \`products\` WHERE \`id\` LIKE 'prod_%' OR \`sellerId\` IN ('sel_01', 'sel_02')`);
+          await this.mysqlPool.query(`DELETE FROM \`products\` WHERE \`id\` LIKE 'prod_%' OR \`sellerId\` IN ('sel_01', 'sel_02') OR \`name\` LIKE '%SonicPulse%' OR \`name\` LIKE '%Zenith%' OR \`name\` LIKE '%Aurora%' OR \`name\` LIKE '%Wireless Bluetooth%'`);
+          await this.mysqlPool.query(`DELETE FROM \`sellers\` WHERE \`id\` IN ('sel_01', 'sel_02') OR \`storeName\` LIKE '%Solaris%' OR \`storeName\` LIKE '%Mr.MAX%'`);
         } catch (e) {}
       }
     } catch (err) {

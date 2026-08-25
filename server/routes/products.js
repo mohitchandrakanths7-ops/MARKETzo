@@ -4,6 +4,27 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/database');
 const { authenticate, optionalAuth, requireRole } = require('../middleware/auth');
 
+function isDemoProduct(p) {
+  if (!p) return false;
+  if (p.id?.startsWith('prod_')) return true;
+  if (p.sellerId === 'sel_01' || p.sellerId === 'sel_02') return true;
+  const name = (p.name || '').toLowerCase();
+  return (
+    name.includes('sonicpulse') ||
+    name.includes('zenith blade') ||
+    name.includes('aurora ultra') ||
+    name.includes('nordiccraft') ||
+    name.includes('botanica lab') ||
+    name.includes('apexfit') ||
+    name.includes('lumière') ||
+    name.includes('lumiere') ||
+    name.includes('vanguard') ||
+    name.includes('roboquest') ||
+    name.includes('wireless bluetooth') ||
+    name.includes('earbuds with charging')
+  );
+}
+
 // List Products with Faceted Search, Filters, & Sorting
 router.get('/', optionalAuth, (req, res) => {
   try {
@@ -28,7 +49,7 @@ router.get('/', optionalAuth, (req, res) => {
 
     let products = db.findAll('products', p => {
       // Exclude legacy demo products
-      if (p.id?.startsWith('prod_') || p.sellerId === 'sel_01' || p.sellerId === 'sel_02') return false;
+      if (isDemoProduct(p)) return false;
       // By default show approved products or seller's own products
       if (req.user && req.user.role === 'admin') return true;
       if (req.seller && p.sellerId === req.seller.id) return true;
@@ -170,7 +191,7 @@ router.get('/suggestions', (req, res) => {
   if (!q || !q.trim()) return res.json({ success: true, suggestions: [] });
 
   const query = q.toLowerCase().trim();
-  const allProducts = db.findAll('products', p => p.status === 'approved');
+  const allProducts = db.findAll('products', p => p.status === 'approved' && !isDemoProduct(p));
   const allCategories = db.findAll('categories');
   const allBrands = db.findAll('brands');
 
@@ -218,7 +239,7 @@ router.get('/suggestions', (req, res) => {
 // Get Single Product by ID or Slug
 router.get('/:idOrSlug', (req, res) => {
   const { idOrSlug } = req.params;
-  const product = db.findOne('products', p => p.id === idOrSlug || p.slug === idOrSlug);
+  const product = db.findOne('products', p => (p.id === idOrSlug || p.slug === idOrSlug) && !isDemoProduct(p));
 
   if (!product) {
     return res.status(404).json({ success: false, message: 'Product not found.' });
@@ -230,10 +251,10 @@ router.get('/:idOrSlug', (req, res) => {
   const reviews = db.findAll('reviews', r => r.productId === product.id);
 
   // Related products from same category
-  const relatedProducts = db.findAll('products', p => p.categoryId === product.categoryId && p.id !== product.id && p.status === 'approved').slice(0, 6);
+  const relatedProducts = db.findAll('products', p => p.categoryId === product.categoryId && p.id !== product.id && p.status === 'approved' && !isDemoProduct(p)).slice(0, 6);
 
   // Frequently bought together
-  const frequentlyBought = db.findAll('products', p => p.id !== product.id && p.status === 'approved').slice(0, 2);
+  const frequentlyBought = db.findAll('products', p => p.id !== product.id && p.status === 'approved' && !isDemoProduct(p)).slice(0, 2);
 
   let sellerPhone = null;
   if (seller) {
