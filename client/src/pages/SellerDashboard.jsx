@@ -56,7 +56,7 @@ import { ErrorBoundary } from '../components/common/ErrorBoundary';
 import { api } from '../services/api';
 
 export const SellerDashboard = ({ onNavigate }) => {
-  const { user, isSeller, seller, refreshProfile, becomeSeller, register, demoLogin } = useAuth();
+  const { user, isSeller, seller, refreshProfile, becomeSeller, register } = useAuth();
   const { currentCurrency, activeCurrencyInfo, formatPrice } = useCurrency();
   const { showSuccess, showError, showInfo } = useToast();
 
@@ -674,21 +674,6 @@ export const SellerDashboard = ({ onNavigate }) => {
       }
     };
 
-    const handleQuickDemoMerchant = async () => {
-      setIsLaunchingStore(true);
-      try {
-        const res = await demoLogin('seller');
-        if (res.success) {
-          showSuccess(res.message || 'Signed in as Verified Demo Merchant!');
-          await refreshProfile();
-        }
-      } catch (err) {
-        showError('Demo merchant login failed.');
-      } finally {
-        setIsLaunchingStore(false);
-      }
-    };
-
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-6 animate-in fade-in zoom-in-95">
         <div className="w-20 h-20 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner border border-amber-100">
@@ -804,18 +789,6 @@ export const SellerDashboard = ({ onNavigate }) => {
               </>
             )}
           </button>
-
-          {/* Quick 1-Click Demo Shortcut */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-            <span>Want to test immediately?</span>
-            <button
-              onClick={handleQuickDemoMerchant}
-              type="button"
-              className="text-amber-600 hover:text-amber-700 font-bold underline cursor-pointer"
-            >
-              1-Click Demo Merchant
-            </button>
-          </div>
         </div>
 
         {/* Merchant Benefits Grid */}

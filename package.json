@@ -8,6 +8,7 @@
     "client": "npm --prefix client run dev",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "build": "npm --prefix client install && npm --prefix client run build",
+    "db:init": "node server/database/init-db.js",
     "start": "node server/index.js"
   },
   "keywords": [
@@ -26,6 +27,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.24.2",
+    "pg": "^8.23.0",
     "uuid": "^11.1.0"
   }
 }

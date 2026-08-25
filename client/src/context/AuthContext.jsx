@@ -56,17 +56,6 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
-  const demoLogin = async (role = 'customer') => {
-    const res = await api.demoLogin(role);
-    if (res.success && res.token) {
-      localStorage.setItem('marketzo_token', res.token);
-      setToken(res.token);
-      setUser(res.user);
-      setSeller(res.seller || null);
-    }
-    return res;
-  };
-
   const becomeSeller = async (data) => {
     const res = await api.becomeSeller(data);
     if (res.success) {
@@ -114,7 +103,6 @@ export const AuthProvider = ({ children }) => {
       isAdmin: user?.role === 'admin',
       login,
       register,
-      demoLogin,
       becomeSeller,
       logout,
       refreshProfile,

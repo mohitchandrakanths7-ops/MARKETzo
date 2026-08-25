@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 export const AuthModal = ({ isOpen, onClose, onNavigate, defaultMode = 'login' }) => {
-  const { login, register, demoLogin } = useAuth();
+  const { login, register } = useAuth();
   const { showSuccess, showError } = useToast();
 
   const [mode, setMode] = useState(defaultMode); // 'login' | 'register' | 'forgot'
@@ -64,18 +64,6 @@ export const AuthModal = ({ isOpen, onClose, onNavigate, defaultMode = 'login' }
     }
   };
 
-  const handleQuickDemo = async (demoRole) => {
-    try {
-      const res = await demoLogin(demoRole);
-      showSuccess(res.message);
-      onClose();
-      if (demoRole === 'seller') onNavigate('seller');
-      if (demoRole === 'admin') onNavigate('admin');
-    } catch (err) {
-      showError('Demo login failed.');
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 space-y-6 relative overflow-hidden">
@@ -103,37 +91,6 @@ export const AuthModal = ({ isOpen, onClose, onNavigate, defaultMode = 'login' }
             {mode === 'register' && 'Get access to millions of products with buyer protection'}
             {mode === 'forgot' && 'Enter your registered email to receive a secure recovery code'}
           </p>
-        </div>
-
-        {/* 1-Click Quick Demo Login Shortcuts */}
-        <div className="p-3 bg-indigo-50/70 rounded-2xl border border-indigo-100 text-center space-y-2">
-          <div className="flex items-center justify-center gap-1 text-[11px] font-black text-indigo-900 uppercase tracking-wider">
-            <Sparkles className="w-3 h-3 text-amber-500" />
-            <span>Instant Demo Logins (No Typing Needed)</span>
-          </div>
-          <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('customer')}
-              className="py-1.5 px-2 bg-white hover:bg-indigo-600 hover:text-white text-slate-800 rounded-xl shadow-xs border border-indigo-200/80 transition-colors"
-            >
-              Customer
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('seller')}
-              className="py-1.5 px-2 bg-white hover:bg-amber-600 hover:text-white text-slate-800 rounded-xl shadow-xs border border-indigo-200/80 transition-colors"
-            >
-              Tech Seller
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin')}
-              className="py-1.5 px-2 bg-white hover:bg-emerald-600 hover:text-white text-slate-800 rounded-xl shadow-xs border border-indigo-200/80 transition-colors"
-            >
-              Super Admin
-            </button>
-          </div>
         </div>
 
         {/* Role Toggle for Registration */}

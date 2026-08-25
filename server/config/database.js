@@ -1,5 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const { Pool: PgPool } = require('pg');
+let mysql = null;
+try {
+  mysql = require('mysql2/promise');
+} catch (e) {}
+
 const {
   seedUsers,
   seedSellers,
@@ -52,14 +58,20 @@ class Database {
       follows: [],
       wholesaleRfqs: []
     };
+    this.pgPool = null;
+    this.mysqlPool = null;
+    this.dbEngine = 'local'; // 'postgres' | 'mysql' | 'local'
+    this.isConnected = false;
     this.init();
   }
 
-  init() {
+  async init() {
+    // 1. Ensure local database directory exists
     if (!fs.existsSync(DB_DIR)) {
       fs.mkdirSync(DB_DIR, { recursive: true });
     }
 
+    // 2. Load cached local state if available
     if (fs.existsSync(DB_FILE)) {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf8');
@@ -67,68 +79,29 @@ class Database {
         this.data = {
           ...this.data,
           ...parsed,
-          conversations: parsed.conversations || [...seedConversations],
-          messages: parsed.messages || [...seedMessages],
-          disputes: parsed.disputes || [...seedDisputes],
-          walletTransactions: parsed.walletTransactions || [...seedWalletTransactions],
-          payoutRequests: parsed.payoutRequests || [...seedPayoutRequests],
-          verificationRequests: parsed.verificationRequests || [...seedVerificationRequests],
-          flashSales: parsed.flashSales || [...seedFlashSales],
-          follows: parsed.follows || [...seedFollows],
-          wholesaleRfqs: parsed.wholesaleRfqs || [...seedWholesaleRfqs]
+          users: parsed.users || [],
+          sellers: parsed.sellers || []
         };
-        console.log('📦 Loaded existing Marketzo database state with upgraded marketplace collections.');
       } catch (err) {
-        console.error('⚠️ Could not parse database file, re-initializing with seed data:', err.message);
-        this.seed();
+        this.seedInitialData();
       }
     } else {
-      console.log('🌱 Initializing brand new Marketzo database with complete seed data...');
-      this.seed();
+      this.seedInitialData();
     }
+
+    // 3. Auto-detect & Connect to PostgreSQL or MySQL
+    await this.connectDatabase();
   }
 
-  seed() {
+  seedInitialData() {
     this.data = {
       users: [...seedUsers],
       sellers: [...seedSellers],
       categories: [...seedCategories],
       brands: [...seedBrands],
       products: [...seedProducts],
-      cart: [
-        {
-          id: 'crt_01',
-          userId: 'usr_cust_01',
-          productId: 'prod_01',
-          quantity: 1,
-          variant: 'Midnight Black',
-          savedForLater: false,
-          addedAt: '2026-08-21T14:00:00.000Z'
-        },
-        {
-          id: 'crt_02',
-          userId: 'usr_cust_01',
-          productId: 'prod_09',
-          quantity: 1,
-          variant: 'Space Grey',
-          savedForLater: false,
-          addedAt: '2026-08-21T14:05:00.000Z'
-        }
-      ],
-      wishlist: [
-        {
-          id: 'wsh_01',
-          userId: 'usr_cust_01',
-          productId: 'prod_03',
-          addedAt: '2026-08-20T11:00:00.000Z'
-        },
-        {
-          id: 'wsh_02',
-          userId: 'usr_cust_01',
-          productId: 'prod_05',
-          addedAt: '2026-08-20T11:05:00.000Z'
-        }
-      ],
+      cart: [],
+      wishlist: [],
       addresses: [...seedAddresses],
       orders: [...seedOrders],
       reviews: [...seedReviews],
@@ -145,18 +118,175 @@ class Database {
       follows: [...seedFollows],
       wholesaleRfqs: [...seedWholesaleRfqs]
     };
-    this.save();
+    this.saveLocal();
   }
 
-  save() {
-    try {
-      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
-    } catch (err) {
-      console.error('❌ Failed to persist database state:', err.message);
+  async connectDatabase() {
+    const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.MYSQL_URL;
+
+    // Check if PostgreSQL
+    const isPostgres = dbUrl?.startsWith('postgres') || process.env.DB_TYPE === 'postgres' || !!process.env.PGHOST;
+
+    if (isPostgres || (dbUrl && dbUrl.includes('postgres'))) {
+      await this.connectPostgres(dbUrl);
+    } else if (mysql && (process.env.DB_HOST || dbUrl?.startsWith('mysql'))) {
+      await this.connectMySQL(dbUrl);
+    } else {
+      console.log('📦 [DATABASE] Running with fast local file storage fallback.');
     }
   }
 
-  // Generic query helpers
+  async connectPostgres(dbUrl) {
+    try {
+      const config = dbUrl
+        ? {
+            connectionString: dbUrl,
+            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+          }
+        : {
+            host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10),
+            user: process.env.PGUSER || process.env.DB_USER || 'postgres',
+            password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
+            database: process.env.PGDATABASE || process.env.DB_NAME || 'marketzo_db',
+            ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+          };
+
+      this.pgPool = new PgPool(config);
+      const res = await this.pgPool.query('SELECT NOW() as now');
+      if (res && res.rows.length > 0) {
+        this.dbEngine = 'postgres';
+        this.isConnected = true;
+        console.log('🐘 [POSTGRESQL] Successfully connected to PostgreSQL Database on Render / Cloud.');
+        
+        await this.syncPostgresSchema();
+        await this.syncFromPostgres();
+      }
+    } catch (err) {
+      this.isConnected = false;
+      console.warn(`⚠️ [POSTGRESQL] Connection notice: ${err.message}.`);
+      console.warn(`👉 Marketzo is running safely with active local fallback storage.`);
+    }
+  }
+
+  async syncPostgresSchema() {
+    if (!this.pgPool || !this.isConnected) return;
+    try {
+      const schemaPath = path.join(__dirname, '..', 'database', 'schema.postgres.sql');
+      if (fs.existsSync(schemaPath)) {
+        const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+        await this.pgPool.query(schemaSql);
+        console.log('✅ [POSTGRESQL] PostgreSQL tables and indexes verified.');
+      }
+    } catch (err) {
+      console.warn('[POSTGRESQL] Schema sync notice:', err.message);
+    }
+  }
+
+  async syncFromPostgres() {
+    if (!this.pgPool || !this.isConnected) return;
+    try {
+      const res = await this.pgPool.query('SELECT collection_name, data_json FROM marketzo_collection_data');
+      if (res.rows && res.rows.length > 0) {
+        for (const row of res.rows) {
+          if (row.data_json) {
+            try {
+              this.data[row.collection_name] = JSON.parse(row.data_json);
+            } catch (e) {}
+          }
+        }
+        console.log('📦 [POSTGRESQL] Synchronized all collections from PostgreSQL database.');
+      } else {
+        await this.persistAllToPostgres();
+      }
+    } catch (err) {
+      console.warn('[POSTGRESQL] Could not sync from table:', err.message);
+    }
+  }
+
+  async persistCollectionToPostgres(collection) {
+    if (!this.pgPool || !this.isConnected) return;
+    try {
+      const json = JSON.stringify(this.data[collection] || []);
+      await this.pgPool.query(
+        `INSERT INTO marketzo_collection_data (collection_name, data_json, updated_at)
+         VALUES ($1, $2, NOW())
+         ON CONFLICT (collection_name)
+         DO UPDATE SET data_json = EXCLUDED.data_json, updated_at = NOW()`,
+        [collection, json]
+      );
+    } catch (err) {
+      console.warn(`[POSTGRESQL] Failed to persist "${collection}":`, err.message);
+    }
+  }
+
+  async persistAllToPostgres() {
+    if (!this.pgPool || !this.isConnected) return;
+    for (const key of Object.keys(this.data)) {
+      await this.persistCollectionToPostgres(key);
+    }
+  }
+
+  async connectMySQL(dbUrl) {
+    if (!mysql) return;
+    try {
+      const host = process.env.DB_HOST || 'localhost';
+      const port = parseInt(process.env.DB_PORT || '3306', 10);
+      const user = process.env.DB_USER || 'root';
+      const password = process.env.DB_PASSWORD || '';
+      const database = process.env.DB_NAME || 'marketzo_db';
+      const ssl = process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined;
+
+      this.mysqlPool = mysql.createPool(
+        dbUrl
+          ? { uri: dbUrl, waitForConnections: true, connectionLimit: 10, ...(ssl && { ssl }) }
+          : { host, port, user, password, database, waitForConnections: true, connectionLimit: 10, ...(ssl && { ssl }) }
+      );
+
+      const [rows] = await this.mysqlPool.query('SELECT 1 as connected');
+      if (rows && rows.length > 0) {
+        this.dbEngine = 'mysql';
+        this.isConnected = true;
+        console.log('🐬 [MYSQL] Connected to MySQL database.');
+      }
+    } catch (err) {
+      console.warn(`⚠️ [MYSQL] MySQL notice: ${err.message}`);
+    }
+  }
+
+  saveLocal() {
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
+    } catch (err) {
+      console.error('❌ Failed to persist local state:', err.message);
+    }
+  }
+
+  save(collection = null) {
+    this.saveLocal();
+    if (this.dbEngine === 'postgres') {
+      if (collection) {
+        this.persistCollectionToPostgres(collection);
+      } else {
+        this.persistAllToPostgres();
+      }
+    }
+  }
+
+  // Direct SQL Query
+  async query(sql, params = []) {
+    if (this.dbEngine === 'postgres' && this.pgPool) {
+      const res = await this.pgPool.query(sql, params);
+      return { rows: res.rows, rowCount: res.rowCount };
+    }
+    if (this.dbEngine === 'mysql' && this.mysqlPool) {
+      const [results, fields] = await this.mysqlPool.query(sql, params);
+      return { rows: results, fields };
+    }
+    throw new Error('No active SQL database connected.');
+  }
+
+  // Query helpers
   findAll(collection, predicate = null) {
     if (!this.data[collection]) return [];
     if (!predicate) return [...this.data[collection]];
@@ -175,7 +305,7 @@ class Database {
   insert(collection, item) {
     if (!this.data[collection]) this.data[collection] = [];
     this.data[collection].push(item);
-    this.save();
+    this.save(collection);
     return item;
   }
 
@@ -188,7 +318,7 @@ class Database {
       ...updates,
       updatedAt: new Date().toISOString()
     };
-    this.save();
+    this.save(collection);
     return this.data[collection][index];
   }
 
@@ -201,7 +331,7 @@ class Database {
       this.data[collection] = this.data[collection].filter(item => !predicateOrId(item));
     }
     const removed = this.data[collection].length < initialLen;
-    if (removed) this.save();
+    if (removed) this.save(collection);
     return removed;
   }
 }

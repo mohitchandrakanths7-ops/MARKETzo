@@ -1,9 +1,15 @@
+databases:
+  - name: marketzo-postgres
+    plan: free
+    databaseName: marketzo_db
+    user: marketzo_user
+
 services:
   - type: web
-    name: marketzo-api
+    name: marketzo
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && npm --prefix client install && npm --prefix client run build
     startCommand: node server/index.js
     envVars:
       - key: NODE_ENV
@@ -12,3 +18,7 @@ services:
         value: 5000
       - key: JWT_SECRET
         generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: marketzo-postgres
+          property: connectionString

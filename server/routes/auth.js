@@ -245,34 +245,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Demo Persona Quick-Login
-router.post('/demo-login', (req, res) => {
-  try {
-    const { role } = req.body; // 'customer' | 'seller' | 'admin'
-    let targetEmail = 'alex@marketzo.com';
-    if (role === 'seller') targetEmail = 'techstore@marketzo.com';
-    if (role === 'admin') targetEmail = 'admin@marketzo.com';
-
-    const user = db.findOne('users', u => u.email.toLowerCase() === targetEmail.toLowerCase());
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Demo persona user not found in database.' });
-    }
-
-    const token = generateToken(user);
-    const { password: _, ...safeUser } = user;
-    const seller = user.role === 'seller' ? db.findOne('sellers', s => s.userId === user.id) : null;
-
-    return res.json({
-      success: true,
-      message: `Signed in as Demo ${user.role.toUpperCase()} (${user.name})`,
-      token,
-      user: safeUser,
-      seller
-    });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Demo login error.' });
-  }
-});
 
 // Get Current User Profile
 router.get('/me', authenticate, (req, res) => {

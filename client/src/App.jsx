@@ -4,11 +4,9 @@ import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
-
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { MobileBottomNav } from './components/common/MobileBottomNav';
-import { PersonaSwitcher } from './components/common/PersonaSwitcher';
 import { AuthModal } from './pages/AuthPages';
 
 import { HomePage } from './pages/HomePage';
@@ -109,9 +107,6 @@ function MainLayout() {
         onNavigate={navigate}
         onOpenAuthModal={() => openAuthModal('login')}
       />
-
-      {/* Floating 1-Click Role/Persona Switcher Widget */}
-      <PersonaSwitcher onNavigate={navigate} />
 
       {/* Global Auth Modal */}
       <AuthModal
