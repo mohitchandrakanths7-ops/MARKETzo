@@ -79,8 +79,9 @@ class Database {
         this.data = {
           ...this.data,
           ...parsed,
-          users: parsed.users || [],
-          sellers: parsed.sellers || []
+          users: (parsed.users || []).filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com')),
+          sellers: (parsed.sellers || []).filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics')),
+          products: (parsed.products || []).filter(p => !p.id?.startsWith('prod_') && p.sellerId !== 'sel_01' && p.sellerId !== 'sel_02')
         };
       } catch (err) {
         this.seedInitialData();
@@ -188,6 +189,9 @@ class Database {
         await this.pgPool.query(schemaSql);
         console.log('✅ [POSTGRESQL] PostgreSQL tables and indexes verified.');
       }
+      try {
+        await this.pgPool.query(`DELETE FROM products WHERE id LIKE 'prod_%' OR "sellerId" IN ('sel_01', 'sel_02')`);
+      } catch (e) {}
     } catch (err) {
       console.warn('[POSTGRESQL] Schema sync notice:', err.message);
     }
@@ -201,11 +205,22 @@ class Database {
         for (const row of res.rows) {
           if (row.data_json) {
             try {
-              this.data[row.collection_name] = JSON.parse(row.data_json);
+              let parsed = JSON.parse(row.data_json);
+              if (row.collection_name === 'products' && Array.isArray(parsed)) {
+                parsed = parsed.filter(p => !p.id?.startsWith('prod_') && p.sellerId !== 'sel_01' && p.sellerId !== 'sel_02');
+              }
+              if (row.collection_name === 'users' && Array.isArray(parsed)) {
+                parsed = parsed.filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com'));
+              }
+              if (row.collection_name === 'sellers' && Array.isArray(parsed)) {
+                parsed = parsed.filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics'));
+              }
+              this.data[row.collection_name] = parsed;
             } catch (e) {}
           }
         }
-        console.log('📦 [POSTGRESQL] Synchronized all collections from PostgreSQL database.');
+        console.log('📦 [POSTGRESQL] Synchronized and cleaned collections from PostgreSQL database.');
+        await this.persistAllToPostgres();
       } else {
         await this.persistAllToPostgres();
       }
@@ -258,6 +273,9 @@ class Database {
         this.dbEngine = 'mysql';
         this.isConnected = true;
         console.log('🐬 [MYSQL] Connected to MySQL database.');
+        try {
+          await this.mysqlPool.query(`DELETE FROM \`products\` WHERE \`id\` LIKE 'prod_%' OR \`sellerId\` IN ('sel_01', 'sel_02')`);
+        } catch (e) {}
       }
     } catch (err) {
       console.warn(`⚠️ [MYSQL] MySQL notice: ${err.message}`);

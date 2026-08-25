@@ -27,6 +27,8 @@ router.get('/', optionalAuth, (req, res) => {
     } = req.query;
 
     let products = db.findAll('products', p => {
+      // Exclude legacy demo products
+      if (p.id?.startsWith('prod_') || p.sellerId === 'sel_01' || p.sellerId === 'sel_02') return false;
       // By default show approved products or seller's own products
       if (req.user && req.user.role === 'admin') return true;
       if (req.seller && p.sellerId === req.seller.id) return true;
@@ -370,7 +372,25 @@ router.post('/reviews/:reviewId/helpful', (req, res) => {
     helpfulVotes: (review.helpfulVotes || 0) + 1
   });
 
-  res.json({ success: true, helpfulVotes: updated.helpfulVotes });
+// Direct Clean Demo Products Endpoint
+router.post('/clean-demo', (req, res) => {
+  try {
+    const beforeCount = (db.data.products || []).length;
+    db.data.products = (db.data.products || []).filter(p => !p.id?.startsWith('prod_') && p.sellerId !== 'sel_01' && p.sellerId !== 'sel_02');
+    db.data.users = (db.data.users || []).filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com'));
+    db.data.sellers = (db.data.sellers || []).filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics'));
+    db.save('products');
+    db.save('users');
+    db.save('sellers');
+    res.json({
+      success: true,
+      message: 'Demo items successfully purged.',
+      removedProducts: beforeCount - db.data.products.length,
+      currentProductCount: db.data.products.length
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 module.exports = router;
