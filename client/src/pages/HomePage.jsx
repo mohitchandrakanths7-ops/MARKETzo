@@ -255,32 +255,34 @@ export const HomePage = ({ onNavigate }) => {
       </section>
 
       {/* 4. Trending & High Velocity Electronics & Fashion */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <div className="p-1.5 sm:p-2 rounded-xl bg-indigo-50 text-indigo-600">
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+      {trendingProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <div className="p-1.5 sm:p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Trending Now on Marketzo</h2>
+                <p className="text-[11px] sm:text-xs text-slate-500">Most viewed and ordered items across all departments today</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Trending Now on Marketzo</h2>
-              <p className="text-[11px] sm:text-xs text-slate-500">Most viewed and ordered items across all departments today</p>
-            </div>
+            <button
+              onClick={() => onNavigate('products', { trending: 'true' })}
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+            >
+              <span>View All</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <button
-            onClick={() => onNavigate('products', { trending: 'true' })}
-            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
-          >
-            <span>View All</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
 
-        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-          {trendingProducts.map(p => (
-            <ProductCard key={p.id} product={p} onNavigate={onNavigate} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            {trendingProducts.map(p => (
+              <ProductCard key={p.id} product={p} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 5. Promotional Double Split Banners */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -330,32 +332,34 @@ export const HomePage = ({ onNavigate }) => {
       </section>
 
       {/* 6. Best Sellers & Customer Favorites */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <div className="p-1.5 sm:p-2 rounded-xl bg-amber-50 text-amber-600">
-              <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+      {bestSellers.length > 0 && (
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <div className="p-1.5 sm:p-2 rounded-xl bg-amber-50 text-amber-600">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Marketzo Best Sellers</h2>
+                <p className="text-[11px] sm:text-xs text-slate-500">Highest rated items backed by verified customer purchase reviews</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Marketzo Best Sellers</h2>
-              <p className="text-[11px] sm:text-xs text-slate-500">Highest rated items backed by verified customer purchase reviews</p>
-            </div>
+            <button
+              onClick={() => onNavigate('products', { bestSeller: 'true' })}
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+            >
+              <span>View All</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <button
-            onClick={() => onNavigate('products', { bestSeller: 'true' })}
-            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
-          >
-            <span>View All</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
 
-        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-          {bestSellers.map(p => (
-            <ProductCard key={p.id} product={p} onNavigate={onNavigate} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            {bestSellers.map(p => (
+              <ProductCard key={p.id} product={p} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 7. Become a Verified Seller Call to Action */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
