@@ -7,7 +7,7 @@
     "server": "node server/index.js",
     "client": "npm --prefix client run dev",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
-    "build": "npm --prefix client install && npm --prefix client run build",
+    "build": "npm --prefix client install --include=dev && npm --prefix client run build",
     "db:init": "node server/database/init-db.js",
     "start": "node server/index.js"
   },
