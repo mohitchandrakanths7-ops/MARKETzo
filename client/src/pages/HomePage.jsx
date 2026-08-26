@@ -44,6 +44,19 @@ import { api } from '../services/api';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
 
+// ── Mobile Homepage Components ────────────────────────────────────────────────
+import { MobileHeader } from '../components/home/MobileHeader';
+import { HeroGreeting } from '../components/home/HeroGreeting';
+import { MobileSearchBar } from '../components/home/MobileSearchBar';
+import { CategoryScroller } from '../components/home/CategoryScroller';
+import { HeroCarousel } from '../components/home/HeroCarousel';
+import { ProductCarousel } from '../components/home/ProductCarousel';
+import { GamingZoneBanner } from '../components/home/GamingZoneBanner';
+import { SellerCarousel } from '../components/home/SellerCarousel';
+import { MarketzoPromise } from '../components/home/MarketzoPromise';
+import { FloatingCartBar } from '../components/home/FloatingCartBar';
+// ─────────────────────────────────────────────────────────────────────────────
+
 const ICON_MAP = {
   Headphones,
   Smartphone,
@@ -196,7 +209,122 @@ export const HomePage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="space-y-12 sm:space-y-16 pb-20 overflow-x-hidden">
+    <div className="overflow-x-hidden">
+
+      {/* =======================================================================
+          MOBILE HOMEPAGE — Dark Premium UI (hidden on md+)
+          ======================================================================= */}
+      <div
+        className="md:hidden min-h-screen pb-40"
+        style={{ background: '#080c14' }}
+      >
+        {/* Sticky compact header */}
+        <MobileHeader onNavigate={onNavigate} />
+
+        {/* Greeting headline */}
+        <HeroGreeting />
+
+        {/* Dark glass search bar */}
+        <MobileSearchBar onNavigate={onNavigate} />
+
+        {/* Category horizontal pill scroller */}
+        <CategoryScroller onNavigate={onNavigate} />
+
+        {/* Hero promotional carousel */}
+        <HeroCarousel onNavigate={onNavigate} />
+
+        {/* Featured Products horizontal carousel */}
+        <ProductCarousel
+          title="Featured Products"
+          emoji="⭐"
+          products={featuredProducts}
+          isLoading={isLoading}
+          onNavigate={onNavigate}
+          viewAllParams={{ featured: 'true' }}
+        />
+
+        {/* Flash Deals — only if products exist */}
+        {(flashDeals.length > 0 || isLoading) && (
+          <ProductCarousel
+            title="Flash Deals"
+            emoji="🔥"
+            subtitle={`${String(timeLeft.hours).padStart(2,'0')}:${String(timeLeft.minutes).padStart(2,'0')}:${String(timeLeft.seconds).padStart(2,'0')} left`}
+            products={flashDeals}
+            isLoading={isLoading}
+            onNavigate={onNavigate}
+            viewAllParams={{ hotDeals: 'true' }}
+          />
+        )}
+
+        {/* 🎮 Gaming Zone Banner */}
+        <GamingZoneBanner onNavigate={onNavigate} />
+
+        {/* Just For You — personalized or trending fallback */}
+        <ProductCarousel
+          title={isAuthenticated ? 'Just For You' : 'Popular on MARKETZO'}
+          emoji="✨"
+          products={pickedProducts.length > 0 ? pickedProducts : trendingProducts}
+          isLoading={isLoading}
+          onNavigate={onNavigate}
+          viewAllParams={{}}
+        />
+
+        {/* Trending products */}
+        {trendingProducts.length > 0 && (
+          <ProductCarousel
+            title="Trending Now"
+            emoji="📈"
+            products={trendingProducts}
+            isLoading={isLoading}
+            onNavigate={onNavigate}
+            viewAllParams={{ trending: 'true' }}
+          />
+        )}
+
+        {/* Popular Sellers */}
+        <SellerCarousel
+          sellers={trustedSellers}
+          isLoading={isLoading}
+          onNavigate={onNavigate}
+        />
+
+        {/* MARKETZO Promise trust section */}
+        <MarketzoPromise />
+
+        {/* Bottom spacer for floating bar + nav */}
+        <div style={{ height: '8px' }} />
+
+        {/* Floating cart summary bar (appears when cart has items) */}
+        <FloatingCartBar onNavigate={onNavigate} />
+
+        {/* Modals — reuse existing */}
+        <MakeDealModal
+          isOpen={!!dealModalProduct}
+          product={dealModalProduct}
+          onClose={() => setDealModalProduct(null)}
+        />
+        <VisualSearchModal
+          isOpen={showVisualModal}
+          onClose={() => setShowVisualModal(false)}
+          onNavigate={onNavigate}
+        />
+        <WholesaleRfqModal
+          isOpen={!!rfqModalProduct}
+          product={rfqModalProduct}
+          onClose={() => setRfqModalProduct(null)}
+        />
+        <AiShoppingAssistant
+          isOpen={showAiAssistant}
+          initialPrompt={aiPromptPreload}
+          onClose={() => { setShowAiAssistant(false); setAiPromptPreload(''); }}
+          onNavigate={onNavigate}
+        />
+      </div>
+
+      {/* =======================================================================
+          DESKTOP HOMEPAGE — Original layout (hidden on mobile)
+          ======================================================================= */}
+      <div className="hidden md:block space-y-12 sm:space-y-16 pb-20">
       
       {/* =========================================================================
           1. AI HERO — TELL MARKETZO WHAT YOU NEED
@@ -817,6 +945,8 @@ export const HomePage = ({ onNavigate }) => {
         }}
         onNavigate={onNavigate}
       />
+
+    </div>
 
     </div>
   );
