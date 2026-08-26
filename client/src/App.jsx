@@ -83,7 +83,7 @@ function MainLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#060914] text-slate-100 selection:bg-indigo-500 selection:text-white">
       
       {/* Top Navbar */}
       <Header

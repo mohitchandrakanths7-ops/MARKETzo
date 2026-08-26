@@ -147,15 +147,15 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900 text-white shadow-md border-b border-slate-800">
+    <header className="sticky top-0 z-40 bg-[#080B16] text-white shadow-md border-b border-white/5">
       {/* Top micro bar for announcements & currency selector */}
-      <div className="bg-slate-950 px-3 sm:px-4 py-1.5 text-xs text-slate-300 border-b border-slate-800/80 flex items-center justify-between gap-2 overflow-hidden">
+      <div className="bg-[#050811] px-3 sm:px-4 py-1.5 text-xs text-slate-300 border-b border-white/5 flex items-center justify-between gap-2 overflow-hidden">
         <div className="flex items-center gap-2 sm:gap-4 truncate">
           <span className="flex items-center gap-1.5 font-medium text-amber-400 truncate text-[11px] sm:text-xs">
             <Sparkles className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">Summer Sale: Extra 25% Off with code <strong>SUMMER25</strong></span>
           </span>
-          <span className="hidden lg:inline-block text-slate-600">|</span>
+          <span className="hidden lg:inline-block text-slate-700">|</span>
           <span className="hidden lg:inline-block text-slate-400 truncate">
             100% Genuine Products • 2-Day Express Shipping • Buyer Protection
           </span>
@@ -718,12 +718,14 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
       </div>
 
       {/* Main & Categories secondary nav strip */}
-      <div className="bg-slate-800/95 backdrop-blur-md px-3 sm:px-6 lg:px-8 border-t border-slate-700/60 overflow-x-auto no-scrollbar">
-        <div className="max-w-7xl mx-auto flex items-center gap-1.5 py-1.5 text-xs text-slate-300 font-medium whitespace-nowrap">
+      <div className="bg-[#0c1122]/95 backdrop-blur-md px-3 sm:px-6 lg:px-8 border-t border-white/5 overflow-x-auto no-scrollbar">
+        <div className="max-w-7xl mx-auto flex items-center gap-1.5 py-2 text-xs text-slate-300 font-medium whitespace-nowrap">
           <button
             onClick={() => onNavigate('home')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-colors shrink-0 cursor-pointer ${
-              currentRoute === 'home' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-200 hover:bg-slate-700'
+            className={`px-3.5 py-1.5 rounded-xl font-bold transition-all shrink-0 cursor-pointer ${
+              currentRoute === 'home'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/25'
+                : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
             }`}
           >
             Home
@@ -731,7 +733,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
 
           <button
             onClick={() => onNavigate('products', {})}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700 text-slate-200 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
           >
             <Menu className="w-3.5 h-3.5 text-indigo-400" />
             <span>Categories</span>
@@ -739,9 +741,9 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
 
           <button
             onClick={() => onNavigate('products', { hotDeals: 'true' })}
-            className="px-3 py-1.5 rounded-lg text-amber-400 hover:bg-slate-700 font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+            className="px-3 py-1.5 rounded-xl text-amber-400 hover:bg-slate-800/80 font-bold flex items-center gap-1 shrink-0 cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Deals</span>
           </button>
 
@@ -754,7 +756,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 onNavigate('home');
               }
             }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-200 hover:bg-slate-700 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
           >
             <Store className="w-3.5 h-3.5 text-emerald-400" />
             <span>Stores</span>
@@ -769,7 +771,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 onNavigate('products', { wholesale: 'true' });
               }
             }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-200 hover:bg-slate-700 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
           >
             <Package className="w-3.5 h-3.5 text-cyan-400" />
             <span>Wholesale</span>
@@ -777,23 +779,23 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
 
           <button
             onClick={() => onNavigate('gaming')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black transition-all shrink-0 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black transition-all shrink-0 cursor-pointer ${
               currentRoute === 'gaming'
-                ? 'bg-purple-900 text-purple-200 ring-1 ring-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.4)]'
-                : 'text-purple-300 hover:bg-slate-700 hover:text-purple-100'
+                ? 'bg-gradient-to-r from-purple-900 to-indigo-900 text-purple-200 border border-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
+                : 'text-purple-300 hover:bg-purple-950/40 hover:text-purple-100 border border-purple-500/20'
             }`}
           >
             <span>🎮</span>
             <span>Gaming Zone</span>
           </button>
 
-          <div className="h-4 w-px bg-slate-700 mx-1 shrink-0" />
+          <div className="h-4 w-px bg-white/10 mx-1 shrink-0" />
 
           {categories.slice(0, 8).map(cat => (
             <button
               key={cat.id}
               onClick={() => onNavigate('products', { category: cat.slug || cat.id })}
-              className="px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-700 hover:text-white transition-colors shrink-0 text-slate-300 cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl hover:bg-slate-800/80 hover:text-white transition-colors shrink-0 text-slate-300 cursor-pointer"
             >
               {cat.name}
             </button>
