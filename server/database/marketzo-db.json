@@ -285,7 +285,7 @@
       "categoryId": "cat_electronics",
       "brandId": "br_sonic",
       "sellerId": "sel_merchant_01",
-      "stock": 42,
+      "stock": 41,
       "rating": 4.9,
       "reviewCount": 88,
       "isFeatured": true,
@@ -307,7 +307,7 @@
         "60-Hour Playtime",
         "Hi-Res Certified"
       ],
-      "updatedAt": "2026-08-26T04:54:36.472Z"
+      "updatedAt": "2026-08-26T05:57:21.035Z"
     },
     {
       "id": "prod_mkt_mob_01",
@@ -1134,6 +1134,60 @@
         }
       ],
       "createdAt": "2026-08-26T04:54:36.489Z"
+    },
+    {
+      "id": "ord_4c3c6be5",
+      "orderNumber": "MKZ-720576",
+      "userId": "usr_customer_01",
+      "sellerIds": [
+        "sel_merchant_01"
+      ],
+      "items": [
+        {
+          "productId": "prod_mkt_elec_01",
+          "name": "Studio Pro ANC Wireless Over-Ear Headphones",
+          "slug": "studio-pro-anc-wireless-headphones",
+          "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
+          "price": 199,
+          "quantity": 1,
+          "variant": null,
+          "sellerId": "sel_merchant_01"
+        }
+      ],
+      "shippingAddress": {
+        "fullName": "David Miller",
+        "street": "123 Market St",
+        "city": "San Francisco",
+        "postalCode": "94102",
+        "country": "United States"
+      },
+      "currency": "USD",
+      "exchangeRate": 1,
+      "displayTotal": null,
+      "baseSubtotalUSD": 199,
+      "baseTotalUSD": 214.92,
+      "subtotal": 199,
+      "discountAmount": 0,
+      "shippingFee": 0,
+      "taxAmount": 15.92,
+      "totalAmount": 214.92,
+      "couponApplied": null,
+      "paymentMethod": "credit_card",
+      "paymentStatus": "paid",
+      "orderStatus": "Pending",
+      "deliverySpeed": "standard",
+      "courierName": "BlueDart Ground Direct",
+      "trackingNumber": "TRK-34213723",
+      "trackingUrl": "https://track.marketzo.com/live/MKZ-720576",
+      "estimatedDelivery": "Sun, Aug 30",
+      "timeline": [
+        {
+          "status": "Pending",
+          "time": "2026-08-26T05:57:21.151Z",
+          "note": "Order placed with online payment. Awaiting merchant confirmation."
+        }
+      ],
+      "createdAt": "2026-08-26T05:57:21.151Z"
     }
   ],
   "reviews": [],
@@ -1442,6 +1496,26 @@
       "read": false,
       "link": "/seller",
       "createdAt": "2026-08-26T05:39:58.280Z"
+    },
+    {
+      "id": "notif_5de3612f",
+      "userId": "usr_customer_01",
+      "title": "Order Confirmed! 🎉",
+      "message": "Your order #MKZ-720576 for $214.92 has been confirmed.",
+      "type": "order",
+      "read": false,
+      "link": "/account?tab=orders",
+      "createdAt": "2026-08-26T05:57:21.152Z"
+    },
+    {
+      "id": "notif_79239e05",
+      "userId": "usr_seller_01",
+      "title": "New Order Received 📦",
+      "message": "New order #MKZ-720576 received. Please review and dispatch.",
+      "type": "seller",
+      "read": false,
+      "link": "/seller?tab=orders",
+      "createdAt": "2026-08-26T05:57:21.153Z"
     }
   ],
   "conversations": [],

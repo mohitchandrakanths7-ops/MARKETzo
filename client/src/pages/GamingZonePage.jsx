@@ -32,6 +32,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useToast } from '../context/ToastContext';
+import { ShareProductModal } from '../components/product/ShareProductModal';
 import { api } from '../services/api';
 
 export const GamingZonePage = ({ onNavigate }) => {
@@ -71,6 +72,7 @@ export const GamingZonePage = ({ onNavigate }) => {
 
   // Quick View / Complete Setup Modal
   const [selectedProductForSetup, setSelectedProductForSetup] = useState(null);
+  const [shareProduct, setShareProduct] = useState(null);
 
   // Debounce search
   useEffect(() => {
@@ -475,12 +477,25 @@ export const GamingZonePage = ({ onNavigate }) => {
                     <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-rose-600 text-white font-black text-[10px] uppercase shadow-xs">
                       {deal.discountPercent}% OFF
                     </div>
-                    <button
-                      onClick={() => toggleWishlist(deal)}
-                      className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-slate-900/80 text-slate-300 hover:text-rose-400 transition-colors"
-                    >
-                      <Heart className={`w-3.5 h-3.5 ${isInWishlist(deal.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
-                    </button>
+                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-10">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShareProduct(deal);
+                        }}
+                        className="p-1.5 rounded-full bg-slate-900/80 text-slate-300 hover:text-purple-400 transition-colors cursor-pointer"
+                        title="Share Deal"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => toggleWishlist(deal)}
+                        className="p-1.5 rounded-full bg-slate-900/80 text-slate-300 hover:text-rose-400 transition-colors cursor-pointer"
+                        title="Wishlist"
+                      >
+                        <Heart className={`w-3.5 h-3.5 ${isInWishlist(deal.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
@@ -961,15 +976,28 @@ export const GamingZonePage = ({ onNavigate }) => {
                           </div>
                         )}
 
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleWishlist(prod);
-                          }}
-                          className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-slate-900/80 text-slate-300 hover:text-rose-400 transition-colors"
-                        >
-                          <Heart className={`w-3.5 h-3.5 ${isInWishlist(prod.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
-                        </button>
+                        <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-10">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShareProduct(prod);
+                            }}
+                            className="p-1.5 rounded-full bg-slate-900/80 text-slate-300 hover:text-purple-400 transition-colors cursor-pointer"
+                            title="Share Product"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWishlist(prod);
+                            }}
+                            className="p-1.5 rounded-full bg-slate-900/80 text-slate-300 hover:text-rose-400 transition-colors cursor-pointer"
+                            title="Wishlist"
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${isInWishlist(prod.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
@@ -1243,6 +1271,13 @@ export const GamingZonePage = ({ onNavigate }) => {
           </div>
         </div>
       )}
+
+      {/* Share Modal */}
+      <ShareProductModal
+        isOpen={!!shareProduct}
+        onClose={() => setShareProduct(null)}
+        product={shareProduct}
+      />
 
     </div>
   );

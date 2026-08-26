@@ -28,6 +28,7 @@ import { ProductCard } from '../components/product/ProductCard';
 import { ReviewSection } from '../components/product/ReviewSection';
 import { SellerChatModal } from '../components/chat/SellerChatModal';
 import { WholesaleRfqModal } from '../components/wholesale/WholesaleRfqModal';
+import { ShareProductModal } from '../components/product/ShareProductModal';
 import { api } from '../services/api';
 
 // Custom SVG WhatsApp Icon
@@ -80,6 +81,7 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
   // Upgrade Modals & Social
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isRfqOpen, setIsRfqOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
 
@@ -267,15 +269,25 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
               )}
             </div>
 
-            {/* Wishlist Button */}
-            <button
-              onClick={() => toggleWishlist(product)}
-              className={`absolute top-4 right-4 p-3 rounded-2xl backdrop-blur-md transition-all shadow-md ${
-                isLiked ? 'bg-rose-500 text-white' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-rose-500'
-              }`}
-            >
-              <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-            </button>
+            {/* Floating Share & Wishlist Buttons */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+              <button
+                onClick={() => setIsShareOpen(true)}
+                className="p-3 rounded-2xl backdrop-blur-md bg-white/80 hover:bg-white text-slate-700 hover:text-indigo-600 transition-all shadow-md cursor-pointer"
+                title="Share Product"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => toggleWishlist(product)}
+                className={`p-3 rounded-2xl backdrop-blur-md transition-all shadow-md cursor-pointer ${
+                  isLiked ? 'bg-rose-500 text-white' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-rose-500'
+                }`}
+                title={isLiked ? 'Remove from wishlist' : 'Save to wishlist'}
+              >
+                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+              </button>
+            </div>
           </div>
 
           {/* Thumbnails Row */}
@@ -346,17 +358,29 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
               {product.name}
             </h1>
 
-            {/* Ratings & Reviews */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-1 rounded-xl text-xs font-bold">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
-                <span>{product.rating?.toFixed(1) || '4.9'}</span>
+            {/* Ratings & Reviews + Share button */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-1 rounded-xl text-xs font-bold">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                  <span>{product.rating?.toFixed(1) || '4.9'}</span>
+                </div>
+                <span className="text-xs text-slate-500 font-semibold">{product.reviewCount || 140} Verified Customer Ratings</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Verified Authentic Stock
+                </span>
               </div>
-              <span className="text-xs text-slate-500 font-semibold">{product.reviewCount || 140} Verified Customer Ratings</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Verified Authentic Stock
-              </span>
+
+              {/* Quick Share Button */}
+              <button
+                onClick={() => setIsShareOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition-colors cursor-pointer"
+                title="Share this product with friends & family"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Share Product</span>
+              </button>
             </div>
           </div>
 
@@ -784,6 +808,13 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
       <WholesaleRfqModal
         isOpen={isRfqOpen}
         onClose={() => setIsRfqOpen(false)}
+        product={product}
+      />
+
+      {/* Social & WhatsApp / Instagram / Mobile Share Modal */}
+      <ShareProductModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
         product={product}
       />
 
