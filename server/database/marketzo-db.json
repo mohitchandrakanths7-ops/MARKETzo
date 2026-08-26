@@ -38,6 +38,29 @@
       "phone": "+91 9876543212",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=David",
       "createdAt": "2026-02-01T00:00:00.000Z"
+    },
+    {
+      "id": "usr_41414cbe",
+      "name": "Sarah Connor",
+      "email": "newuser_1787722797667@marketzo.com",
+      "password": "$2a$10$yiUAQLsewBd.8wuObWF78urOPXv6hVH2ouoRAQKJyEcOAg3YUEFzi",
+      "role": "customer",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Sarah%20Connor",
+      "phone": "",
+      "createdAt": "2026-08-26T05:39:57.992Z",
+      "resetCode": null,
+      "resetCodeExpiry": null,
+      "updatedAt": "2026-08-26T05:39:58.680Z"
+    },
+    {
+      "id": "usr_a6019041",
+      "name": "Alex Vance",
+      "email": "merchant_1787722798008@marketzo.com",
+      "password": "$2a$10$AvR./M5z8RVlQw6LXkKwMOKcVdBKBQfgTBq8Gh1UTN7rP7dIVnJka",
+      "role": "seller",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Vance",
+      "phone": "",
+      "createdAt": "2026-08-26T05:39:58.261Z"
     }
   ],
   "sellers": [
@@ -70,6 +93,23 @@
       "phone": "+91 9876543211",
       "businessAddress": "Suite 104, Fashion Arcade, Mumbai, Maharashtra, 400001, India",
       "createdAt": "2026-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "sel_64dcd6de",
+      "userId": "usr_a6019041",
+      "storeName": "Vance Apex Tech 8008",
+      "slug": "vance-apex-tech-8008",
+      "logo": "https://api.dicebear.com/7.x/identicon/svg?seed=Vance%20Apex%20Tech%208008",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "description": "Authorized marketplace vendor providing verified authentic merchandise.",
+      "rating": 5,
+      "reviewCount": 0,
+      "status": "approved",
+      "commissionRate": 10,
+      "businessAddress": "100 Marketzo Commerce Ave",
+      "phone": "",
+      "taxId": "TAX-PENDING",
+      "joinedAt": "2026-08-26T05:39:58.265Z"
     }
   ],
   "categories": [
@@ -1382,6 +1422,26 @@
       "read": false,
       "link": "/seller?tab=orders",
       "createdAt": "2026-08-26T04:54:36.491Z"
+    },
+    {
+      "id": "notif_9a2d5564",
+      "userId": "usr_41414cbe",
+      "title": "Welcome to Marketzo! 🛍️",
+      "message": "Explore millions of authentic products, exclusive flash discounts, and rapid delivery.",
+      "type": "account",
+      "read": false,
+      "link": "/",
+      "createdAt": "2026-08-26T05:39:57.998Z"
+    },
+    {
+      "id": "notif_2ffd49f9",
+      "userId": "usr_a6019041",
+      "title": "Welcome Merchant! 🏪",
+      "message": "Your merchant store \"Vance Apex Tech 8008\" is live and ready for listing products.",
+      "type": "account",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-08-26T05:39:58.280Z"
     }
   ],
   "conversations": [],

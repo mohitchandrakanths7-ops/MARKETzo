@@ -214,34 +214,143 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = typeof password === 'string' ? password.trim() : '';
+
+    if (!cleanEmail || !cleanPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter both your email address and password.'
+      });
     }
 
-    const user = db.findOne('users', u => u.email.toLowerCase() === email.toLowerCase());
+    // Find user (case-insensitive and trimmed)
+    const user = db.findOne('users', u => (u.email || '').trim().toLowerCase() === cleanEmail);
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password credentials.' });
+      return res.status(401).json({
+        success: false,
+        message: 'No account found with this email address. Please check your spelling or create a new account.'
+      });
     }
 
-    const isMatch = bcrypt.compareSync(password, user.password);
+    // Compare password with bcrypt + plain-text fallback
+    let isMatch = false;
+    if (user.password) {
+      try {
+        isMatch = bcrypt.compareSync(cleanPassword, user.password);
+      } catch (e) {
+        isMatch = false;
+      }
+
+      // If user had plain text password stored in legacy or fallback
+      if (!isMatch && (user.password === cleanPassword || user.password === password)) {
+        const salt = bcrypt.genSaltSync(10);
+        user.password = bcrypt.hashSync(cleanPassword, salt);
+        db.update('users', user.id, { password: user.password });
+        isMatch = true;
+      }
+    }
+
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password credentials.' });
+      return res.status(401).json({
+        success: false,
+        message: 'Incorrect password entered. Please try again or click "Forgot Password".'
+      });
     }
 
     const token = generateToken(user);
     const { password: _, ...safeUser } = user;
     const seller = user.role === 'seller' ? db.findOne('sellers', s => s.userId === user.id) : null;
 
+    console.log(`[AUTH] User "${cleanEmail}" logged in successfully (role: ${user.role}).`);
+
     return res.json({
       success: true,
-      message: 'Login successful!',
+      message: `Welcome back, ${user.name}!`,
       token,
       user: safeUser,
       seller
     });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ success: false, message: 'Server error during login.' });
+    return res.status(500).json({ success: false, message: 'Server error during login. Please try again.' });
+  }
+});
+
+// Forgot Password Request
+router.post('/forgot-password', (req, res) => {
+  try {
+    const { email } = req.body;
+    const cleanEmail = (email || '').trim().toLowerCase();
+
+    if (!cleanEmail || !isValidEmail(cleanEmail)) {
+      return res.status(400).json({ success: false, message: 'Please provide a valid registered email address.' });
+    }
+
+    const user = db.findOne('users', u => (u.email || '').trim().toLowerCase() === cleanEmail);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account registered with this email address. Please sign up for a new account.'
+      });
+    }
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    db.update('users', user.id, {
+      resetCode,
+      resetCodeExpiry: Date.now() + 3600000
+    });
+
+    return res.json({
+      success: true,
+      message: `Password reset code sent to ${cleanEmail}. Verification Code: ${resetCode}`,
+      resetCode
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ success: false, message: 'Could not process password reset request.' });
+  }
+});
+
+// Reset Password Submission
+router.post('/reset-password', (req, res) => {
+  try {
+    const { email, resetCode, newPassword } = req.body;
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (newPassword || '').trim();
+
+    if (!cleanEmail || !cleanPassword || cleanPassword.length < 4) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and a new password with at least 4 characters.'
+      });
+    }
+
+    const user = db.findOne('users', u => (u.email || '').trim().toLowerCase() === cleanEmail);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Account not found.' });
+    }
+
+    if (user.resetCode && resetCode && user.resetCode !== resetCode.toString().trim()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired password reset code.' });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(cleanPassword, salt);
+
+    db.update('users', user.id, {
+      password: hashedPassword,
+      resetCode: null,
+      resetCodeExpiry: null
+    });
+
+    return res.json({
+      success: true,
+      message: 'Your password has been successfully updated! You can now log in.'
+    });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ success: false, message: 'Could not reset password.' });
   }
 });
 
