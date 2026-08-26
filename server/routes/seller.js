@@ -329,4 +329,95 @@ router.put('/profile', (req, res) => {
   res.json({ success: true, message: 'Store profile updated!', seller: updated });
 });
 
+// Submit / Request Product Feature on Home Page
+router.post('/feature-requests', (req, res) => {
+  try {
+    const seller = req.seller || db.findOne('sellers', s => s.userId === req.user.id);
+    if (!seller) return res.status(404).json({ success: false, message: 'Seller not found.' });
+
+    const { productId, homePageSection = 'Featured Products', priority = 1, featuredUntil } = req.body;
+    if (!productId) {
+      return res.status(400).json({ success: false, message: 'Product ID is required.' });
+    }
+
+    const product = db.findById('products', productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found.' });
+    }
+
+    if (product.sellerId !== seller.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'You can only request feature for your own products.' });
+    }
+
+    if (product.status !== 'approved') {
+      return res.status(400).json({ success: false, message: 'Only published products can be featured on the Home Page.' });
+    }
+
+    // Default expiry: 30 days from now if not provided
+    const defaultExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const finalExpiry = featuredUntil || defaultExpiry;
+
+    // Check if an existing request exists for this product
+    const existingReq = db.findOne('featureRequests', r => r.productId === productId);
+
+    let featureReq;
+    if (existingReq) {
+      featureReq = db.update('featureRequests', existingReq.id, {
+        sellerId: seller.id,
+        sellerStoreName: seller.storeName,
+        productId: product.id,
+        productName: product.name,
+        productImage: product.images?.[0] || product.image || '',
+        homePageSection: homePageSection || 'Featured Products',
+        priority: parseInt(priority) || 1,
+        featuredUntil: finalExpiry,
+        status: 'pending',
+        rejectionReason: null,
+        requestedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    } else {
+      featureReq = {
+        id: `freq_${uuidv4().substring(0, 8)}`,
+        sellerId: seller.id,
+        sellerStoreName: seller.storeName,
+        productId: product.id,
+        productName: product.name,
+        productImage: product.images?.[0] || product.image || '',
+        homePageSection: homePageSection || 'Featured Products',
+        priority: parseInt(priority) || 1,
+        featuredUntil: finalExpiry,
+        status: 'pending',
+        rejectionReason: null,
+        requestedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      db.insert('featureRequests', featureReq);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Feature request submitted successfully. Waiting for admin approval.',
+      request: featureReq
+    });
+  } catch (err) {
+    console.error('Submit feature request error:', err);
+    res.status(500).json({ success: false, message: 'Failed to submit feature request.' });
+  }
+});
+
+// Get Feature Requests for Seller
+router.get('/feature-requests', (req, res) => {
+  try {
+    const seller = req.seller || db.findOne('sellers', s => s.userId === req.user.id);
+    if (!seller) return res.status(404).json({ success: false, message: 'Seller not found.' });
+
+    const requests = db.findAll('featureRequests', r => r.sellerId === seller.id);
+    res.json({ success: true, requests });
+  } catch (err) {
+    console.error('Fetch seller feature requests error:', err);
+    res.status(500).json({ success: false, message: 'Could not fetch feature requests.' });
+  }
+});
+
 module.exports = router;

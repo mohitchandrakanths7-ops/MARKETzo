@@ -46,7 +46,9 @@ import {
   User,
   Copy,
   ChevronDown,
-  Filter
+  Filter,
+  Star,
+  XCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -150,6 +152,17 @@ export const SellerDashboard = ({ onNavigate }) => {
   const [disputeResponseText, setDisputeResponseText] = useState('');
   const [isSubmittingDisputeResp, setIsSubmittingDisputeResp] = useState(false);
 
+  // Home Page Feature Request State
+  const [featureRequests, setFeatureRequests] = useState([]);
+  const [showFeatureModal, setShowFeatureModal] = useState(false);
+  const [selectedProductForFeature, setSelectedProductForFeature] = useState(null);
+  const [featureForm, setFeatureForm] = useState({
+    homePageSection: 'Featured Products',
+    priority: 1,
+    featuredUntil: ''
+  });
+  const [isSubmittingFeature, setIsSubmittingFeature] = useState(false);
+
   // Store Settings Form
   const [storeForm, setStoreForm] = useState({
     storeName: seller?.storeName || '',
@@ -217,7 +230,53 @@ export const SellerDashboard = ({ onNavigate }) => {
     } catch (e) { console.error(e); }
   };
 
+  const loadFeatureRequests = async () => {
+    try {
+      const res = await api.getSellerFeatureRequests();
+      if (res && res.success) setFeatureRequests(res.requests || []);
+    } catch (e) { console.error('Feature requests error:', e); }
+  };
+
+  const handleOpenFeatureModal = (prod) => {
+    setSelectedProductForFeature(prod);
+    const existingReq = featureRequests.find(r => r.productId === prod.id);
+    const defaultDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    setFeatureForm({
+      homePageSection: existingReq?.homePageSection || 'Featured Products',
+      priority: existingReq?.priority || 1,
+      featuredUntil: existingReq?.featuredUntil ? existingReq.featuredUntil.split('T')[0] : defaultDate
+    });
+    setShowFeatureModal(true);
+  };
+
+  const handleSubmitFeatureRequest = async (e) => {
+    if (e) e.preventDefault();
+    if (!selectedProductForFeature) return;
+
+    setIsSubmittingFeature(true);
+    try {
+      const res = await api.requestFeatureProduct({
+        productId: selectedProductForFeature.id,
+        homePageSection: featureForm.homePageSection || 'Featured Products',
+        priority: parseInt(featureForm.priority) || 1,
+        featuredUntil: featureForm.featuredUntil
+      });
+      if (res && res.success) {
+        showSuccess(res.message || 'Feature request submitted successfully. Waiting for admin approval.');
+        setShowFeatureModal(false);
+        await loadFeatureRequests();
+      } else {
+        showError(res?.message || 'Could not submit feature request.');
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to submit feature request.');
+    } finally {
+      setIsSubmittingFeature(false);
+    }
+  };
+
   useEffect(() => {
+    if (activeTab === 'products') loadFeatureRequests();
     if (activeTab === 'orders') fetchSellerOrders();
     if (activeTab === 'wallet') loadWallet();
     if (activeTab === 'coupons') loadSellerCoupons();
@@ -252,16 +311,18 @@ export const SellerDashboard = ({ onNavigate }) => {
   const loadSellerData = async () => {
     try {
       setIsLoading(true);
-      const [metRes, prodRes, ordRes, catRes, brdRes] = await Promise.allSettled([
+      const [metRes, prodRes, ordRes, catRes, brdRes, featRes] = await Promise.allSettled([
         api.getSellerMetrics(),
         api.getSellerProducts(),
         api.getSellerOrders(),
         api.getCategories(),
-        api.getBrands()
+        api.getBrands(),
+        api.getSellerFeatureRequests()
       ]);
 
       if (metRes.status === 'fulfilled' && metRes.value?.success) setMetrics(metRes.value.metrics);
       if (prodRes.status === 'fulfilled' && prodRes.value?.success) setProducts(prodRes.value.products || []);
+      if (featRes.status === 'fulfilled' && featRes.value?.success) setFeatureRequests(featRes.value.requests || []);
       if (ordRes.status === 'fulfilled' && ordRes.value?.success) {
         setOrders(Array.isArray(ordRes.value.orders) ? ordRes.value.orders : []);
         setOrdersError(null);
@@ -1184,7 +1245,7 @@ export const SellerDashboard = ({ onNavigate }) => {
 
                             {/* Actions */}
                             <td className="p-4 text-right">
-                              <div className="flex items-center justify-end gap-2">
+                              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-wrap">
                                 <button
                                   onClick={() => onNavigate('product-detail', { id: prod.id || prod.slug })}
                                   className="p-2 hover:bg-slate-100 text-slate-600 hover:text-indigo-600 rounded-xl transition-colors cursor-pointer"
@@ -1200,6 +1261,62 @@ export const SellerDashboard = ({ onNavigate }) => {
                                 >
                                   <Edit3 className="w-4 h-4" />
                                 </button>
+
+                                {/* ⭐ Feature on Home Page Action for Published Products */}
+                                {prod.status === 'approved' && (() => {
+                                  const featReq = featureRequests.find(r => r.productId === prod.id);
+                                  const isFeatApproved = featReq?.status === 'approved';
+                                  const isFeatPending = featReq?.status === 'pending';
+                                  const isFeatRejected = featReq?.status === 'rejected';
+
+                                  if (isFeatApproved) {
+                                    return (
+                                      <span
+                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-300 rounded-xl text-xs font-bold shadow-2xs whitespace-nowrap"
+                                        title="Approved by Admin - Live on Marketzo Home Page"
+                                      >
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                        <span>✅ Featured on Home Page</span>
+                                      </span>
+                                    );
+                                  }
+
+                                  if (isFeatPending) {
+                                    return (
+                                      <span
+                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold shadow-2xs whitespace-nowrap"
+                                        title="Feature request is awaiting admin approval"
+                                      >
+                                        <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0 animate-pulse" />
+                                        <span>⏳ Pending Approval</span>
+                                      </span>
+                                    );
+                                  }
+
+                                  if (isFeatRejected) {
+                                    return (
+                                      <button
+                                        onClick={() => handleOpenFeatureModal(prod)}
+                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                                        title="Feature request rejected. Click to submit another request."
+                                      >
+                                        <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                                        <span>❌ Feature Request Rejected</span>
+                                      </button>
+                                    );
+                                  }
+
+                                  return (
+                                    <button
+                                      onClick={() => handleOpenFeatureModal(prod)}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 hover:border-amber-400 rounded-xl text-xs font-black transition-all cursor-pointer shadow-2xs hover:shadow-xs whitespace-nowrap"
+                                      title="Request to feature this product on the Marketzo Home Page"
+                                    >
+                                      <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400 shrink-0" />
+                                      <span>⭐ Feature on Home Page</span>
+                                    </button>
+                                  );
+                                })()}
 
                                 <button
                                   onClick={() => handleDeleteProduct(prod.id, prod.name)}
@@ -3120,6 +3237,155 @@ export const SellerDashboard = ({ onNavigate }) => {
                 Done
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: FEATURE PRODUCT ON HOME PAGE MODAL */}
+      {showFeatureModal && selectedProductForFeature && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-2xs">
+                  <Star className="w-5 h-5 fill-amber-400 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base sm:text-lg text-slate-900">Feature Product on Home Page</h3>
+                  <p className="text-[11px] text-slate-500">Request premier marketplace homepage promotional spotlight</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFeatureModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Product Summary Preview */}
+            <div className="flex items-center gap-3.5 p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl">
+              <img
+                src={selectedProductForFeature.images?.[0] || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&auto=format&fit=crop&q=80'}
+                alt={selectedProductForFeature.name}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&auto=format&fit=crop&q=80';
+                }}
+                className="w-14 h-14 rounded-xl object-cover bg-white shrink-0 border border-slate-200 shadow-2xs"
+              />
+              <div className="min-w-0 flex-1">
+                <h4 className="font-extrabold text-sm text-slate-900 truncate leading-snug">
+                  {selectedProductForFeature.name}
+                </h4>
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-1">
+                  <span className="font-bold text-slate-900">{formatPrice(selectedProductForFeature.price)}</span>
+                  <span>•</span>
+                  <span className="text-emerald-700 font-semibold">{selectedProductForFeature.stock} in stock</span>
+                  <span>•</span>
+                  <span className="text-indigo-600 font-medium uppercase tracking-wider">{selectedProductForFeature.categoryName || 'Published'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <form onSubmit={handleSubmitFeatureRequest} className="space-y-4">
+              
+              {/* Home Page Section */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-1.5">
+                  Home Page Section <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={featureForm.homePageSection}
+                  onChange={(e) => setFeatureForm({ ...featureForm, homePageSection: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10 cursor-pointer"
+                  required
+                >
+                  <option value="Featured Products">Featured Products (Top Premier Carousel)</option>
+                  <option value="Hot Deals">Hot Deals (High Discount Showcase)</option>
+                  <option value="New Arrivals">New Arrivals (Fresh Catalog Listings)</option>
+                  <option value="Recommended">Recommended (Editor's Choice Picks)</option>
+                </select>
+                <p className="text-[10px] text-slate-400 mt-1">Select the storefront section where this product will be promoted.</p>
+              </div>
+
+              {/* Priority & Featured Until Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-1.5">
+                    Priority (1-100)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={featureForm.priority}
+                    onChange={(e) => setFeatureForm({ ...featureForm, priority: e.target.value })}
+                    placeholder="e.g. 1 (Normal) to 10 (Urgent)"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Higher priority items rank first in the section.</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-1.5">
+                    Featured Until Date <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={featureForm.featuredUntil}
+                    onChange={(e) => setFeatureForm({ ...featureForm, featuredUntil: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10 cursor-pointer"
+                    required
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Feature expiration date.</p>
+                </div>
+              </div>
+
+              {/* Informational Banner */}
+              <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-amber-900 flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  Feature requests are reviewed by Marketzo Administrators. Once approved, the product will automatically appear live on the Home Page until the selected date.
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowFeatureModal(false)}
+                  disabled={isSubmittingFeature}
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingFeature}
+                  className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shadow-amber-500/20 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingFeature ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Star className="w-3.5 h-3.5 fill-slate-950" />
+                      <span>Request Feature</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </form>
+
           </div>
         </div>
       )}

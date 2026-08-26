@@ -266,6 +266,26 @@ export const AccountPage = ({ routeParams = {}, onNavigate }) => {
     return ORDER_STATUS_STEPS.indexOf(status);
   };
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto my-16 p-8 bg-white rounded-3xl text-center border border-slate-200 shadow-sm space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+          <User className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-black text-slate-900">Sign in to your Account</h2>
+        <p className="text-xs text-slate-500">
+          Please sign in or register to view your customer orders, live shipment tracking, saved addresses, and settings.
+        </p>
+        <button
+          onClick={() => onNavigate('home')}
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"
+        >
+          Return to Marketplace & Sign In
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
@@ -353,7 +373,17 @@ export const AccountPage = ({ routeParams = {}, onNavigate }) => {
         {/* 1. MY ORDERS TAB */}
         {activeTab === 'orders' && (
           <div className="space-y-6">
-            {orders.length === 0 ? (
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2].map(n => (
+                  <div key={n} className="bg-white rounded-3xl border border-slate-200 p-6 animate-pulse space-y-4">
+                    <div className="h-4 bg-slate-200 rounded w-1/4" />
+                    <div className="h-12 bg-slate-100 rounded-xl" />
+                    <div className="h-4 bg-slate-200 rounded w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : orders.length === 0 ? (
               <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-md mx-auto space-y-3">
                 <Package className="w-12 h-12 text-slate-300 mx-auto" />
                 <h3 className="font-bold text-slate-800 text-base">No orders yet</h3>
@@ -367,8 +397,9 @@ export const AccountPage = ({ routeParams = {}, onNavigate }) => {
               </div>
             ) : (
               orders.map(order => {
-                const currentStep = getStepIndex(order.orderStatus);
+                const currentStep = getStepIndex(order.orderStatus || 'Pending');
                 const isCancelled = order.orderStatus === 'Cancelled';
+                const safeItems = Array.isArray(order.items) ? order.items : [];
 
                 return (
                   <div key={order.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
@@ -467,7 +498,7 @@ export const AccountPage = ({ routeParams = {}, onNavigate }) => {
 
                     {/* Order Items List */}
                     <div className="divide-y divide-slate-100 pt-2">
-                      {order.items.map((item, idx) => (
+                      {safeItems.map((item, idx) => (
                         <div key={idx} className="py-3 flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
                             <img

@@ -267,8 +267,8 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18 gap-2 sm:gap-4 lg:gap-8">
           
-          {/* Mobile Hamburger Button & Logo */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Mobile Hamburger Button & Logo + GAMING ZONE Selector */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <button
               onClick={() => setShowMobileNav(true)}
               className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
@@ -277,8 +277,42 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
               <Menu className="w-5 h-5" />
             </button>
 
-            <div onClick={() => onNavigate('home')} className="shrink-0 cursor-pointer">
-              <MarketzoLogo showTagline={true} light={true} />
+            {/* Top-Level MARKETZO & GAMING ZONE Navigation */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => onNavigate('home')}
+                className={`p-1 rounded-xl transition-all cursor-pointer flex items-center ${
+                  currentRoute === 'home'
+                    ? 'ring-2 ring-indigo-500/40 bg-slate-800/40'
+                    : 'opacity-90 hover:opacity-100 hover:bg-slate-800/30'
+                }`}
+                title="MARKETZO Main Marketplace"
+              >
+                <MarketzoLogo showTagline={false} light={true} />
+              </button>
+
+              <div className="h-6 w-px bg-slate-700/80 hidden xs:block" />
+
+              {/* 🎮 GAMING ZONE Top-Level Destination Button */}
+              <button
+                type="button"
+                onClick={() => onNavigate('gaming')}
+                className={`group relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl font-black text-xs sm:text-xs transition-all duration-300 cursor-pointer border shadow-xs ${
+                  currentRoute === 'gaming'
+                    ? 'bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white border-purple-500 shadow-[0_0_18px_rgba(168,85,247,0.45)] ring-1 ring-purple-400'
+                    : 'bg-slate-950/70 text-purple-300 border-purple-900/60 hover:border-purple-400 hover:text-white hover:bg-slate-900 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                }`}
+                title="Open Dedicated Gaming Zone"
+              >
+                <span className="text-sm sm:text-base animate-pulse">🎮</span>
+                <span className="tracking-wider uppercase font-black bg-gradient-to-r from-purple-300 via-indigo-200 to-cyan-300 bg-clip-text text-transparent group-hover:from-purple-200 group-hover:to-cyan-200">
+                  GAMING ZONE
+                </span>
+                <span className="hidden md:inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  PRO
+                </span>
+              </button>
             </div>
           </div>
 
@@ -322,7 +356,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                   setShowSuggestions(true);
                 }}
                 onFocus={() => setShowSuggestions(true)}
-                placeholder="Search products, brands, electronics..."
+                placeholder="Search products, brands, categories, or tell MARKETZO what you need..."
                 className="w-full py-2.5 px-3.5 text-sm bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
               />
 
@@ -344,6 +378,17 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 className="p-2 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
+              </button>
+
+              {/* AI Find Products Trigger */}
+              <button
+                type="button"
+                onClick={() => setShowAiAssistant(true)}
+                title="Ask MARKETZO AI"
+                className="px-2.5 py-1 text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shrink-0 mr-1.5 cursor-pointer border border-amber-200"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden xl:inline">AI Find</span>
               </button>
 
               {/* Search Submit Button */}
@@ -638,7 +683,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              placeholder="Search products, brands, categories..."
+              placeholder="Search products, brands, or tell MARKETZO what you need..."
               className="w-full py-2.5 px-3 text-xs bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
             />
             {searchTerm && (
@@ -646,6 +691,14 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => setShowAiAssistant(true)}
+              title="Ask MARKETZO AI"
+              className="p-1.5 text-amber-500 hover:text-amber-600"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
             <button
               type="button"
               onClick={() => setShowVisualSearchModal(true)}
@@ -664,34 +717,87 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
         </div>
       </div>
 
-      {/* Categories secondary nav strip */}
-      <div className="bg-slate-800/90 backdrop-blur-md px-3 sm:px-6 lg:px-8 border-t border-slate-700/60 overflow-x-auto no-scrollbar">
-        <div className="max-w-7xl mx-auto flex items-center gap-1 py-1.5 text-xs text-slate-300 font-medium whitespace-nowrap">
+      {/* Main & Categories secondary nav strip */}
+      <div className="bg-slate-800/95 backdrop-blur-md px-3 sm:px-6 lg:px-8 border-t border-slate-700/60 overflow-x-auto no-scrollbar">
+        <div className="max-w-7xl mx-auto flex items-center gap-1.5 py-1.5 text-xs text-slate-300 font-medium whitespace-nowrap">
           <button
-            onClick={() => onNavigate('products', {})}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-700 text-white font-bold bg-slate-900/60 transition-colors shrink-0"
+            onClick={() => onNavigate('home')}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-colors shrink-0 cursor-pointer ${
+              currentRoute === 'home' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-200 hover:bg-slate-700'
+            }`}
           >
-            <Menu className="w-3.5 h-3.5 text-indigo-400" />
-            <span>All Products</span>
+            Home
           </button>
 
-          {categories.slice(0, 9).map(cat => (
+          <button
+            onClick={() => onNavigate('products', {})}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700 text-slate-200 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
+          >
+            <Menu className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Categories</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('products', { hotDeals: 'true' })}
+            className="px-3 py-1.5 rounded-lg text-amber-400 hover:bg-slate-700 font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Deals</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (currentRoute === 'home') {
+                const el = document.getElementById('trusted-sellers-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                onNavigate('home');
+              }
+            }}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-200 hover:bg-slate-700 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
+          >
+            <Store className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Stores</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (currentRoute === 'home') {
+                const el = document.getElementById('wholesale-zone-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                onNavigate('products', { wholesale: 'true' });
+              }
+            }}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-slate-200 hover:bg-slate-700 hover:text-white font-semibold transition-colors shrink-0 cursor-pointer"
+          >
+            <Package className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Wholesale</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('gaming')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black transition-all shrink-0 cursor-pointer ${
+              currentRoute === 'gaming'
+                ? 'bg-purple-900 text-purple-200 ring-1 ring-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.4)]'
+                : 'text-purple-300 hover:bg-slate-700 hover:text-purple-100'
+            }`}
+          >
+            <span>🎮</span>
+            <span>Gaming Zone</span>
+          </button>
+
+          <div className="h-4 w-px bg-slate-700 mx-1 shrink-0" />
+
+          {categories.slice(0, 8).map(cat => (
             <button
               key={cat.id}
               onClick={() => onNavigate('products', { category: cat.slug || cat.id })}
-              className="px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-700 hover:text-white transition-colors shrink-0"
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-700 hover:text-white transition-colors shrink-0 text-slate-300 cursor-pointer"
             >
               {cat.name}
             </button>
           ))}
-
-          <button
-            onClick={() => onNavigate('products', { minDiscount: 20 })}
-            className="px-2.5 sm:px-3 py-1.5 rounded-lg text-amber-400 hover:bg-slate-700 font-semibold flex items-center gap-1 shrink-0"
-          >
-            <Sparkles className="w-3 h-3" />
-            <span>Hot Deals</span>
-          </button>
         </div>
       </div>
 
@@ -756,6 +862,22 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 <div className="text-[10px] uppercase font-black text-slate-500 px-3 py-1.5 tracking-wider">
                   Marketplace Portals
                 </div>
+
+                <button
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    onNavigate('gaming');
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-purple-950/60 border border-purple-800/80 text-purple-200 font-extrabold text-left shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">🎮</span>
+                    <span className="bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-transparent">GAMING ZONE</span>
+                  </div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-purple-500/30 text-purple-200">
+                    Pro
+                  </span>
+                </button>
 
                 <button
                   onClick={() => {

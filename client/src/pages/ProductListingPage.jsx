@@ -35,6 +35,7 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
     minDiscount: routeParams.minDiscount || '',
     inStock: routeParams.inStock || '',
     featured: routeParams.featured || '',
+    hotDeals: routeParams.hotDeals || '',
     trending: routeParams.trending || '',
     bestSeller: routeParams.bestSeller || '',
     newArrival: routeParams.newArrival || '',
@@ -54,6 +55,7 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
       minDiscount: routeParams.minDiscount || '',
       inStock: routeParams.inStock || '',
       featured: routeParams.featured || '',
+      hotDeals: routeParams.hotDeals || '',
       trending: routeParams.trending || '',
       bestSeller: routeParams.bestSeller || '',
       newArrival: routeParams.newArrival || ''
@@ -146,9 +148,19 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             {filters.search 
               ? `Search Results for "${filters.search}"`
-              : activeCategoryObj 
-                ? activeCategoryObj.name
-                : 'Marketplace Products'
+              : filters.hotDeals === 'true'
+                ? '🔥 Hot Deals & Promotions'
+                : filters.featured === 'true'
+                  ? '⭐ Featured Premier Products'
+                  : filters.trending === 'true'
+                    ? '📈 Trending Marketplace Products'
+                    : filters.bestSeller === 'true'
+                      ? '🏆 Best Selling Products'
+                      : filters.newArrival === 'true'
+                        ? '✨ New Arrivals'
+                        : activeCategoryObj 
+                          ? activeCategoryObj.name
+                          : 'Marketplace Products'
             }
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">Showing {products.length} of {total} verified marketplace listings</p>
@@ -209,7 +221,7 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
       </div>
 
       {/* Active Filter Pills Bar */}
-      {(filters.search || filters.category || filters.minPrice || filters.maxPrice || filters.minRating || filters.minDiscount || filters.inStock) && (
+      {(filters.search || filters.category || filters.minPrice || filters.maxPrice || filters.minRating || filters.minDiscount || filters.inStock || filters.hotDeals || filters.featured) && (
         <div className="flex flex-wrap items-center gap-2 bg-slate-100/70 p-2.5 rounded-2xl">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Active Filters:</span>
           
@@ -224,6 +236,20 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-lg text-xs font-semibold text-indigo-700">
               <span>Department: {activeCategoryObj.name}</span>
               <X className="w-3.5 h-3.5 text-indigo-400 hover:text-indigo-700 cursor-pointer" onClick={() => handleFilterChange('category', '')} />
+            </span>
+          )}
+
+          {filters.hotDeals === 'true' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg text-xs font-semibold text-amber-800">
+              <span>🔥 Hot Deals</span>
+              <X className="w-3.5 h-3.5 text-amber-500 hover:text-amber-800 cursor-pointer" onClick={() => handleFilterChange('hotDeals', '')} />
+            </span>
+          )}
+
+          {filters.featured === 'true' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg text-xs font-semibold text-amber-800">
+              <span>⭐ Featured Only</span>
+              <X className="w-3.5 h-3.5 text-amber-500 hover:text-amber-800 cursor-pointer" onClick={() => handleFilterChange('featured', '')} />
             </span>
           )}
 

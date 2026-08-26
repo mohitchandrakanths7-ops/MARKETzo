@@ -66,81 +66,94 @@ export const Footer = ({ onNavigate }) => {
       </div>
 
       {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          
-          {/* Brand Info & Newsletter */}
-          <div className="lg:col-span-2 space-y-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        
+        {/* Brand Bar */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-12 border-b border-slate-800/80">
+          <div className="space-y-2 max-w-md">
             <div onClick={() => onNavigate('home')} className="cursor-pointer">
               <MarketzoLogo showTagline={true} light={true} size="lg" />
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              MARKETZO is the premier modern multi-vendor marketplace connecting verified independent merchants, artisan makers, and global brands with discerning shoppers.
+            <p className="text-xs text-slate-400 leading-relaxed">
+              MARKETZO is the premier modern multi-vendor marketplace connecting verified independent merchants, artisan makers, and global brands with shoppers worldwide.
             </p>
+          </div>
 
-            <div className="pt-2">
-              <div className="text-xs font-bold text-white uppercase tracking-wider mb-2">Subscribe to Marketzo VIP Deals</div>
-              <div className="flex max-w-sm rounded-xl overflow-hidden bg-slate-900 border border-slate-800 focus-within:border-indigo-500 transition-colors">
-                <input
-                  type="email"
-                  placeholder="Enter your work or personal email..."
-                  className="bg-transparent text-xs px-3.5 py-2.5 text-white outline-none flex-1 placeholder:text-slate-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => alert('Thank you for subscribing to Marketzo VIP news!')}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Join</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
+          <div className="w-full md:w-auto">
+            <div className="text-xs font-bold text-white uppercase tracking-wider mb-2">Subscribe to MARKETZO VIP Deals</div>
+            <div className="flex max-w-sm rounded-xl overflow-hidden bg-slate-900 border border-slate-800 focus-within:border-indigo-500 transition-colors">
+              <input
+                type="email"
+                placeholder="Enter your email address..."
+                className="bg-transparent text-xs px-3.5 py-2.5 text-white outline-none flex-1 placeholder:text-slate-500"
+              />
+              <button
+                type="button"
+                onClick={() => alert('Thank you for subscribing to Marketzo VIP news!')}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>Join</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Popular Categories */}
+        {/* 5 Distinct Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-10 pt-12">
+          
+          {/* Column 1: MARKETZO */}
           <div>
-            <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Categories</h4>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">MARKETZO</h4>
             <ul className="space-y-2.5 text-xs">
-              <li><button onClick={() => onNavigate('products', { category: 'electronics-audio' })} className="hover:text-white transition-colors">Electronics & Audio</button></li>
-              <li><button onClick={() => onNavigate('products', { category: 'mobiles-tablets' })} className="hover:text-white transition-colors">Mobiles & Tablets</button></li>
-              <li><button onClick={() => onNavigate('products', { category: 'laptops-computers' })} className="hover:text-white transition-colors">Laptops & Workstations</button></li>
-              <li><button onClick={() => onNavigate('products', { category: 'fashion-apparel' })} className="hover:text-white transition-colors">Fashion & Apparel</button></li>
-              <li><button onClick={() => onNavigate('products', { category: 'jewellery-watches' })} className="hover:text-white transition-colors">Jewellery & Luxury</button></li>
-              <li><button onClick={() => onNavigate('products', { category: 'home-kitchen' })} className="hover:text-white transition-colors">Home & Living</button></li>
+              <li><button onClick={() => onNavigate('home')} className="hover:text-white transition-colors cursor-pointer">About MARKETZO</button></li>
+              <li><button onClick={() => onNavigate('home')} className="hover:text-white transition-colors cursor-pointer">Contact Us</button></li>
+              <li><button onClick={() => onNavigate('home')} className="hover:text-white transition-colors cursor-pointer">Careers & Culture</button></li>
+              <li><button onClick={() => onNavigate('home')} className="hover:text-white transition-colors cursor-pointer">Press & Media</button></li>
             </ul>
           </div>
 
-          {/* Customer Care */}
+          {/* Column 2: Customer */}
           <div>
-            <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Customer Care</h4>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Customer</h4>
             <ul className="space-y-2.5 text-xs">
-              <li><button onClick={() => onNavigate('account', { tab: 'orders' })} className="hover:text-white transition-colors">Track Your Order</button></li>
-              <li><button onClick={() => onNavigate('account', { tab: 'addresses' })} className="hover:text-white transition-colors">Shipping Information</button></li>
-              <li><button onClick={() => onNavigate('account')} className="hover:text-white transition-colors">Returns & Refunds</button></li>
-              <li><button onClick={() => onNavigate('cart')} className="hover:text-white transition-colors">Cart & Price Protection</button></li>
-              <li><button onClick={() => onNavigate('wishlist')} className="hover:text-white transition-colors">My Wishlist</button></li>
-              <li><span className="text-slate-500">Security & Privacy</span></li>
+              <li><button onClick={() => onNavigate('account', { tab: 'orders' })} className="hover:text-white transition-colors cursor-pointer">My Orders</button></li>
+              <li><button onClick={() => onNavigate('wishlist')} className="hover:text-white transition-colors cursor-pointer">My Wishlist</button></li>
+              <li><button onClick={() => onNavigate('account', { tab: 'messages' })} className="hover:text-white transition-colors cursor-pointer">Help Center & Chat</button></li>
+              <li><button onClick={() => onNavigate('account', { tab: 'disputes' })} className="hover:text-white transition-colors cursor-pointer">Buyer Protection</button></li>
             </ul>
           </div>
 
-          {/* Seller Marketplace Hub */}
+          {/* Column 3: Seller */}
           <div>
-            <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Sell on Marketzo</h4>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Seller</h4>
             <ul className="space-y-2.5 text-xs">
-              <li>
-                <button
-                  onClick={() => onNavigate('seller')}
-                  className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-bold"
-                >
-                  <Store className="w-3.5 h-3.5" />
-                  <span>Seller Portal</span>
-                </button>
-              </li>
-              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors">Vendor Registration</button></li>
-              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors">Merchant Fulfillment</button></li>
-              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors">Commission & Payouts</button></li>
-              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors">Seller Policies</button></li>
+              <li><button onClick={() => onNavigate('seller')} className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors cursor-pointer">Sell on MARKETZO</button></li>
+              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors cursor-pointer">Seller Dashboard</button></li>
+              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors cursor-pointer">Seller Help & Guide</button></li>
+              <li><button onClick={() => onNavigate('seller')} className="hover:text-white transition-colors cursor-pointer">Seller Verification</button></li>
+            </ul>
+          </div>
+
+          {/* Column 4: Marketplace */}
+          <div>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Marketplace</h4>
+            <ul className="space-y-2.5 text-xs">
+              <li><button onClick={() => onNavigate('products', {})} className="hover:text-white transition-colors cursor-pointer">Categories</button></li>
+              <li><button onClick={() => onNavigate('products', { hotDeals: 'true' })} className="hover:text-white transition-colors cursor-pointer">Hot Deals</button></li>
+              <li><button onClick={() => { const el = document.getElementById('trusted-sellers-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else onNavigate('home'); }} className="hover:text-white transition-colors cursor-pointer">Seller Stores</button></li>
+              <li><button onClick={() => { const el = document.getElementById('wholesale-zone-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else onNavigate('products', { wholesale: 'true' }); }} className="hover:text-white transition-colors cursor-pointer">Wholesale Zone</button></li>
+            </ul>
+          </div>
+
+          {/* Column 5: Legal */}
+          <div>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Legal & Trust</h4>
+            <ul className="space-y-2.5 text-xs">
+              <li><span className="text-slate-400 hover:text-white transition-colors cursor-pointer">Privacy Policy</span></li>
+              <li><span className="text-slate-400 hover:text-white transition-colors cursor-pointer">Terms of Service</span></li>
+              <li><span className="text-slate-400 hover:text-white transition-colors cursor-pointer">Refund Policy</span></li>
+              <li><span className="text-slate-400 hover:text-white transition-colors cursor-pointer">Shipping Policy</span></li>
             </ul>
           </div>
 
@@ -148,9 +161,9 @@ export const Footer = ({ onNavigate }) => {
 
         {/* Bottom Bar with payment badges & copyright */}
         <div className="border-t border-slate-800/80 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} MARKETZO Inc. All rights reserved. "Buy More. Sell More." is a trademark of Marketzo.</p>
-          <div className="flex items-center gap-4 text-slate-400">
-            <span className="flex items-center gap-1"><CreditCard className="w-3.5 h-3.5" /> Visa / Mastercard</span>
+          <p>© {new Date().getFullYear()} MARKETZO Inc. All rights reserved. Verified Multi-Vendor Marketplace.</p>
+          <div className="flex flex-wrap items-center gap-3 text-slate-400">
+            <span className="flex items-center gap-1"><CreditCard className="w-3.5 h-3.5 text-slate-500" /> Card Payments</span>
             <span>•</span>
             <span>UPI Instant</span>
             <span>•</span>

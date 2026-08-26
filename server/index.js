@@ -53,6 +53,7 @@ app.use('/api/ai', require('./routes/ai'));
 app.use('/api/visualsearch', require('./routes/visualsearch'));
 app.use('/api/follows', require('./routes/follows'));
 app.use('/api/wholesale', require('./routes/wholesale'));
+app.use('/api/gaming', require('./routes/gaming'));
 
 // API Base endpoint
 app.get('/api', (req, res) => {
@@ -79,15 +80,24 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve frontend build in production if available
+// Serve frontend build in production with aggressive caching for static assets
 const clientBuildPath = path.join(__dirname, '..', 'client', 'dist');
-app.use(express.static(clientBuildPath));
+app.use(express.static(clientBuildPath, {
+  maxAge: '7d',
+  immutable: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    }
+  }
+}));
 
 // Serve frontend fallback or 404
 app.use((req, res) => {
   if (!req.path.startsWith('/api')) {
     const indexPath = path.join(clientBuildPath, 'index.html');
     if (require('fs').existsSync(indexPath)) {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
       return res.sendFile(indexPath);
     }
   }

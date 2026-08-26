@@ -113,6 +113,8 @@ export const api = {
   getSellerCoupons: () => request('/coupons/seller/my-coupons'),
   createSellerCoupon: (data) => request('/coupons/seller/create', { method: 'POST', body: data }),
   deleteSellerCoupon: (id) => request(`/coupons/seller/${id}`, { method: 'DELETE' }),
+  requestFeatureProduct: (data) => request('/seller/feature-requests', { method: 'POST', body: data }),
+  getSellerFeatureRequests: () => request('/seller/feature-requests'),
 
   // Chat
   getConversations: () => request('/chat/conversations'),
@@ -151,6 +153,7 @@ export const api = {
 
   // AI Shopping Assistant & Visual Search
   askAiAssistant: (data) => request('/ai/recommend', { method: 'POST', body: data }),
+  getAiSellerHelp: (data) => request('/ai/seller-help', { method: 'POST', body: data }),
   searchVisualProduct: (data) => request('/visualsearch/analyze', { method: 'POST', body: data }),
 
   // Follow Seller
@@ -165,6 +168,21 @@ export const api = {
   getSellerRfqs: () => request('/wholesale/seller-rfqs'),
   submitRfqQuote: (id, data) => request(`/wholesale/rfq/${id}/quote`, { method: 'PUT', body: data }),
 
+  // Featured, Trending, Personalized, Sellers & Deals (Home Page)
+  getFeaturedProducts: () => request('/products/featured'),
+  getTrendingProducts: () => request('/products/trending-now'),
+  getPickedForYou: () => request('/products/picked-for-you'),
+  getExploreSellers: () => request('/products/explore-sellers'),
+  submitMakeDeal: (data) => request('/products/make-deal', { method: 'POST', body: data }),
+
+  // Gaming Zone
+  getGamingProducts: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/gaming/products${query ? `?${query}` : ''}`);
+  },
+  buildAiGamingSetup: (data) => request('/gaming/ai-builder', { method: 'POST', body: data }),
+  getGamingCommunitySetups: () => request('/gaming/community-setups'),
+
   // Admin Dashboard
   getAdminMetrics: () => request('/admin/metrics'),
   getAdminSellers: () => request('/admin/sellers'),
@@ -174,5 +192,8 @@ export const api = {
   createCoupon: (couponData) => request('/admin/coupons', { method: 'POST', body: couponData }),
   deleteCoupon: (id) => request(`/admin/coupons/${id}`, { method: 'DELETE' }),
   createCategory: (data) => request('/admin/categories', { method: 'POST', body: data }),
-  createBanner: (data) => request('/admin/banners', { method: 'POST', body: data })
+  createBanner: (data) => request('/admin/banners', { method: 'POST', body: data }),
+  getAdminFeatureRequests: () => request('/admin/feature-requests'),
+  updateFeatureRequestStatus: (requestId, data) => request(`/admin/feature-requests/${requestId}/status`, { method: 'PUT', body: data }),
+  removeFeatureRequest: (requestId) => request(`/admin/feature-requests/${requestId}`, { method: 'DELETE' })
 };

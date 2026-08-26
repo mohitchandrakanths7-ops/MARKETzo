@@ -29,7 +29,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useToast } from '../../context/ToastContext';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 
-export const AiShoppingAssistant = ({ isOpen, onClose, onNavigate }) => {
+export const AiShoppingAssistant = ({ isOpen, onClose, onNavigate, initialPrompt = '' }) => {
   const { currentCurrency, activeCurrencyInfo, formatPrice } = useCurrency();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -79,8 +79,11 @@ export const AiShoppingAssistant = ({ isOpen, onClose, onNavigate }) => {
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
+      if (initialPrompt && initialPrompt.trim()) {
+        handleAsk(initialPrompt.trim());
+      }
     }
-  }, [messages, isOpen, isLoading]);
+  }, [isOpen, initialPrompt]);
 
   // Voice Input (Web Speech API)
   const handleToggleVoice = () => {

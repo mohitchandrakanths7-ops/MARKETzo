@@ -210,4 +210,167 @@ router.post('/banners', (req, res) => {
   res.status(201).json({ success: true, banner: newBanner });
 });
 
+// Admin Feature Requests Management
+// Get all feature requests
+router.get('/feature-requests', (req, res) => {
+  try {
+    const allRequests = db.findAll('featureRequests') || [];
+    const populated = allRequests.map(r => {
+      const product = db.findById('products', r.productId);
+      const seller = db.findById('sellers', r.sellerId);
+      const user = seller ? db.findById('users', seller.userId) : null;
+      return {
+        ...r,
+        productName: product ? product.name : r.productName,
+        productImage: product?.images?.[0] || product?.image || r.productImage,
+        productPrice: product ? product.price : 0,
+        productOriginalPrice: product ? product.originalPrice : 0,
+        productStock: product ? product.stock : 0,
+        productRating: product ? product.rating : 5.0,
+        productStatus: product ? product.status : 'unknown',
+        isProductPublished: product ? product.status === 'approved' : false,
+        isProductActive: product ? product.stock > 0 : false,
+        sellerStoreName: seller ? seller.storeName : (r.sellerStoreName || 'Unknown Store'),
+        sellerEmail: user ? user.email : '',
+        sellerPhone: seller?.phone || user?.phone || ''
+      };
+    });
+
+    // Sort by requestedAt descending
+    populated.sort((a, b) => new Date(b.requestedAt || b.createdAt || 0) - new Date(a.requestedAt || a.createdAt || 0));
+
+    res.json({ success: true, requests: populated });
+  } catch (err) {
+    console.error('Error fetching admin feature requests:', err);
+    res.status(500).json({ success: false, message: 'Could not fetch feature requests.' });
+  }
+});
+
+// Approve or Reject Feature Request
+router.put('/feature-requests/:requestId/status', (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { status, priority, homePageSection, featuredUntil, rejectionReason } = req.body;
+
+    const request = db.findById('featureRequests', requestId);
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Feature request not found.' });
+    }
+
+    if (!['approved', 'rejected', 'pending', 'removed'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status value.' });
+    }
+
+    const finalPriority = priority !== undefined ? parseInt(priority) : (request.priority || 1);
+    const finalSection = homePageSection || request.homePageSection || 'Featured Products';
+    const finalExpiry = featuredUntil || request.featuredUntil;
+
+    const updated = db.update('featureRequests', requestId, {
+      status,
+      priority: finalPriority,
+      homePageSection: finalSection,
+      featuredUntil: finalExpiry,
+      rejectionReason: status === 'rejected' ? (rejectionReason || 'Does not meet current promotional curation standards.') : null,
+      reviewedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    // Update product's featured flags
+    const isApproved = status === 'approved';
+    const product = db.findById('products', request.productId);
+    if (product) {
+      db.update('products', product.id, {
+        isFeatured: isApproved,
+        featureSection: isApproved ? finalSection : null,
+        featurePriority: isApproved ? finalPriority : 0,
+        featuredUntil: isApproved ? finalExpiry : null
+      });
+    }
+
+    // Send notification to seller
+    const seller = db.findById('sellers', request.sellerId);
+    if (seller && seller.userId) {
+      db.insert('notifications', {
+        id: `notif_${uuidv4().substring(0, 8)}`,
+        userId: seller.userId,
+        title: status === 'approved' 
+          ? '🎉 Product Featured on Marketzo Home Page!' 
+          : status === 'rejected' 
+            ? '❌ Feature Request Update' 
+            : 'Feature Request Updated',
+        message: status === 'approved'
+          ? `Great news! "${request.productName}" is now featured on the Marketzo Home Page in "${finalSection}".`
+          : status === 'rejected'
+            ? `Your feature request for "${request.productName}" was declined: ${rejectionReason || 'Promotional space full'}. You may submit another request.`
+            : `Feature status updated for "${request.productName}".`,
+        type: 'feature_request',
+        read: false,
+        link: '/seller',
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    res.json({
+      success: true,
+      message: status === 'approved' 
+        ? 'Feature request approved! Product is now live on the Home Page.' 
+        : status === 'rejected'
+          ? 'Feature request rejected.'
+          : 'Feature request updated.',
+      request: updated
+    });
+  } catch (err) {
+    console.error('Error updating feature request:', err);
+    res.status(500).json({ success: false, message: 'Could not update feature request.' });
+  }
+});
+
+// Remove product from Home Page
+router.delete('/feature-requests/:requestId', (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const request = db.findById('featureRequests', requestId);
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Feature request not found.' });
+    }
+
+    // Update status to removed / unfeatured
+    db.update('featureRequests', requestId, {
+      status: 'removed',
+      updatedAt: new Date().toISOString()
+    });
+
+    // Remove featured flag from product
+    const product = db.findById('products', request.productId);
+    if (product) {
+      db.update('products', product.id, {
+        isFeatured: false,
+        featureSection: null,
+        featurePriority: 0,
+        featuredUntil: null
+      });
+    }
+
+    // Notify seller
+    const seller = db.findById('sellers', request.sellerId);
+    if (seller && seller.userId) {
+      db.insert('notifications', {
+        id: `notif_${uuidv4().substring(0, 8)}`,
+        userId: seller.userId,
+        title: 'Home Page Feature Concluded',
+        message: `The home page feature campaign for "${request.productName}" has been concluded.`,
+        type: 'feature_request',
+        read: false,
+        link: '/seller',
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    res.json({ success: true, message: 'Product removed from Marketzo Home Page.' });
+  } catch (err) {
+    console.error('Error removing feature request:', err);
+    res.status(500).json({ success: false, message: 'Could not remove product from Home Page.' });
+  }
+});
+
 module.exports = router;

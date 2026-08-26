@@ -26,7 +26,8 @@ const {
   seedVerificationRequests,
   seedFlashSales,
   seedFollows,
-  seedWholesaleRfqs
+  seedWholesaleRfqs,
+  seedFeatureRequests
 } = require('../data/seedData');
 
 const DB_DIR = path.join(__dirname, '..', 'database');
@@ -34,23 +35,9 @@ const DB_FILE = path.join(DB_DIR, 'marketzo-db.json');
 
 function isDemoProduct(p) {
   if (!p) return false;
-  if (p.id?.startsWith('prod_')) return true;
+  if (p.id && /^prod_0[1-9]|^prod_1[0-9]$/.test(p.id)) return true;
   if (p.sellerId === 'sel_01' || p.sellerId === 'sel_02') return true;
-  const name = (p.name || '').toLowerCase();
-  return (
-    name.includes('sonicpulse') ||
-    name.includes('zenith blade') ||
-    name.includes('aurora ultra') ||
-    name.includes('nordiccraft') ||
-    name.includes('botanica lab') ||
-    name.includes('apexfit') ||
-    name.includes('lumière') ||
-    name.includes('lumiere') ||
-    name.includes('vanguard') ||
-    name.includes('roboquest') ||
-    name.includes('wireless bluetooth') ||
-    name.includes('earbuds with charging')
-  );
+  return false;
 }
 
 class Database {
@@ -77,7 +64,8 @@ class Database {
       verificationRequests: [],
       flashSales: [],
       follows: [],
-      wholesaleRfqs: []
+      wholesaleRfqs: [],
+      featureRequests: []
     };
     this.pgPool = null;
     this.mysqlPool = null;
@@ -100,11 +88,40 @@ class Database {
         this.data = {
           ...this.data,
           ...parsed,
-          users: (parsed.users || []).filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com') && !u.name?.includes('Jordan Belfort') && !u.name?.includes('Samantha Ray')),
-          sellers: (parsed.sellers || []).filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics') && !s.storeName?.includes('Mr.MAX')),
-          products: (parsed.products || []).filter(p => !isDemoProduct(p))
+          featureRequests: parsed.featureRequests || [],
+          offers: parsed.offers || [],
+          users: (parsed.users && parsed.users.length > 0) ? parsed.users.filter(u => !u.email?.includes('example.com') && !u.email?.includes('merchantstore.com') && !u.name?.includes('Jordan Belfort') && !u.name?.includes('Samantha Ray')) : [...seedUsers],
+          sellers: (parsed.sellers && parsed.sellers.length > 0) ? parsed.sellers.filter(s => s.id !== 'sel_01' && s.id !== 'sel_02' && !s.storeName?.includes('Solaris Optics') && !s.storeName?.includes('Mr.MAX')) : [...seedSellers],
+          products: (parsed.products && parsed.products.length > 0) ? parsed.products.filter(p => !isDemoProduct(p)) : [...seedProducts]
         };
+        if (this.data.products.length === 0) {
+          this.data.products = [...seedProducts];
+        } else {
+          const existingProdIds = new Set(this.data.products.map(p => p.id));
+          for (const sp of seedProducts) {
+            if (!existingProdIds.has(sp.id)) {
+              this.data.products.push(sp);
+            }
+          }
+        }
+        if (!this.data.categories || this.data.categories.length === 0) {
+          this.data.categories = [...seedCategories];
+        } else {
+          const existingCatIds = new Set(this.data.categories.map(c => c.id));
+          for (const sc of seedCategories) {
+            if (!existingCatIds.has(sc.id)) {
+              this.data.categories.push(sc);
+            }
+          }
+        }
+        if (this.data.sellers.length === 0) {
+          this.data.sellers = [...seedSellers];
+        }
+        if (this.data.users.length === 0) {
+          this.data.users = [...seedUsers];
+        }
       } catch (err) {
+        console.warn('Could not parse local DB file, seeding new data.', err);
         this.seedInitialData();
       }
     } else {
@@ -138,7 +155,9 @@ class Database {
       verificationRequests: [...seedVerificationRequests],
       flashSales: [...seedFlashSales],
       follows: [...seedFollows],
-      wholesaleRfqs: [...seedWholesaleRfqs]
+      wholesaleRfqs: [...seedWholesaleRfqs],
+      featureRequests: [...seedFeatureRequests],
+      offers: []
     };
     this.saveLocal();
   }

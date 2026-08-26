@@ -22,7 +22,7 @@ const handleCreateOrder = (req, res) => {
       return res.status(400).json({ success: false, message: 'Cart items are required to place an order.' });
     }
 
-    if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.street) {
+    if (!shippingAddress || !shippingAddress.fullName || (!shippingAddress.street && !shippingAddress.addressLine1)) {
       return res.status(400).json({ success: false, message: 'Valid shipping address is required.' });
     }
 

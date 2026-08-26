@@ -183,9 +183,9 @@ export const ProductCard = ({ product, onNavigate, layout = 'grid' }) => {
       {/* Product Details */}
       <div className="flex-1 flex flex-col justify-between pt-3">
         <div>
-          {/* Seller / Brand */}
+          {/* Category & Rating */}
           <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-            <span className="truncate max-w-[130px] font-medium text-slate-500">{product.sellerName || 'Marketzo Merchant'}</span>
+            <span className="truncate max-w-[130px] font-semibold text-indigo-600 uppercase tracking-wider text-[10px]">{product.categoryName || 'Marketplace'}</span>
             <div className="flex items-center gap-0.5 text-amber-500 font-bold bg-amber-50 px-1.5 py-0.5 rounded">
               <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
               <span>{product.rating?.toFixed(1) || '4.8'}</span>

@@ -294,4 +294,55 @@ router.post('/recommend', (req, res) => {
   }
 });
 
+// Seller Product Optimization Assistant (helps sellers with title, tags, description & highlights)
+router.post('/seller-help', (req, res) => {
+  try {
+    const { productName = '', categoryId = '', currentDescription = '' } = req.body;
+    const cat = db.findById('categories', categoryId);
+    const catName = cat ? cat.name : 'General Merchandise';
+
+    const cleanTitle = productName.trim();
+    const enhancedTitle = cleanTitle.length > 0 
+      ? `${cleanTitle.replace(/\s+/g, ' ')} - Premium Verified Grade`
+      : `High-Performance ${catName} Selection`;
+
+    const suggestedTags = [
+      catName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      'premium-grade',
+      'fast-shipping',
+      'verified-merchant',
+      'best-value'
+    ];
+
+    if (cleanTitle.toLowerCase().includes('wireless') || cleanTitle.toLowerCase().includes('bluetooth')) {
+      suggestedTags.push('wireless', 'bluetooth-5.3', 'low-latency');
+    }
+    if (cleanTitle.toLowerCase().includes('gaming')) {
+      suggestedTags.push('rgb-lighting', 'pro-gaming', 'ergonomic');
+    }
+
+    const suggestedHighlights = [
+      '100% Genuine and authentic merchandise directly from verified merchant.',
+      'Dispatched in secure, tamper-evident Marketzo packaging with rapid fulfillment.',
+      'Backed by standard 1-Year manufacturer warranty and 30-day money-back guarantee.',
+      'Precision engineered for durability, performance, and everyday reliability.'
+    ];
+
+    const enhancedDescription = currentDescription && currentDescription.length > 20
+      ? `${currentDescription}\n\nKey Highlights:\n• Premium construction and quality assurance\n• Direct-from-merchant express dispatch\n• 24/7 dedicated customer support`
+      : `Experience unmatched quality with this premium ${cleanTitle || catName}. Crafted with high-grade components for optimal performance and long-lasting durability. Every unit undergoes rigorous quality inspection before dispatch to ensure 100% buyer satisfaction.`;
+
+    res.json({
+      success: true,
+      enhancedTitle,
+      enhancedDescription,
+      suggestedTags,
+      suggestedHighlights
+    });
+  } catch (err) {
+    console.error('Seller AI help error:', err);
+    res.status(500).json({ success: false, message: 'Could not generate seller recommendations.' });
+  }
+});
+
 module.exports = router;

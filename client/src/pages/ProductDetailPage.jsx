@@ -225,8 +225,11 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
       <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
         <span onClick={() => onNavigate('home')} className="hover:text-indigo-600 cursor-pointer">Home</span>
         <span>/</span>
-        <span onClick={() => onNavigate('products', { category: product.category?.slug })} className="hover:text-indigo-600 cursor-pointer">
-          {product.category?.name || 'Department'}
+        <span 
+          onClick={() => onNavigate('products', { category: product.categorySlug || product.categoryId || (typeof product.category === 'object' ? product.category?.slug : product.category) })} 
+          className="hover:text-indigo-600 cursor-pointer font-semibold"
+        >
+          {product.categoryName || (typeof product.category === 'object' ? product.category?.name : product.category) || 'Department'}
         </span>
         <span>/</span>
         <span className="text-slate-700 font-bold truncate max-w-xs">{product.name}</span>
