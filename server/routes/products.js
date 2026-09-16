@@ -44,13 +44,49 @@ router.get('/', optionalAuth, (req, res) => {
       return p.status === 'approved';
     });
 
-    // Build category map for quick O(1) lookups
+    // Build category map with extensive aliases for quick O(1) lookups
     const allCategories = db.findAll('categories');
     const categoryMap = new Map();
     allCategories.forEach(c => {
-      categoryMap.set(c.id, c);
+      categoryMap.set(c.id.toLowerCase(), c);
       if (c.slug) categoryMap.set(c.slug.toLowerCase(), c);
-      if (c.name) categoryMap.set(c.name.toLowerCase(), c);
+      if (c.name) {
+        categoryMap.set(c.name.toLowerCase(), c);
+        // Add single-word parts for flexible lookup (e.g., 'Electronics' for 'Electronics & Audio')
+        const words = c.name.toLowerCase().split(/[\s&,/]+/);
+        words.forEach(w => {
+          if (w.length > 2 && !categoryMap.has(w)) categoryMap.set(w, c);
+        });
+      }
+    });
+
+    // Custom common aliases
+    const aliases = {
+      'electronics': 'cat_electronics',
+      'fashion': 'cat_fashion',
+      'mobiles': 'cat_mobiles',
+      'mobile': 'cat_mobiles',
+      'gaming': 'cat_gaming',
+      'game': 'cat_gaming',
+      'home': 'cat_home',
+      'kitchen': 'cat_home',
+      'beauty': 'cat_beauty',
+      'skincare': 'cat_beauty',
+      'sports': 'cat_sports',
+      'sport': 'cat_sports',
+      'fitness': 'cat_sports',
+      'laptops': 'cat_laptops',
+      'laptop': 'cat_laptops',
+      'computers': 'cat_laptops',
+      'jewellery': 'cat_jewellery',
+      'jewelry': 'cat_jewellery',
+      'watches': 'cat_jewellery',
+      'grocery': 'cat_grocery',
+      'gourmet': 'cat_grocery'
+    };
+    Object.entries(aliases).forEach(([alias, targetId]) => {
+      const cat = allCategories.find(c => c.id === targetId);
+      if (cat) categoryMap.set(alias, cat);
     });
 
     // Build brand map for quick O(1) lookups
@@ -64,7 +100,12 @@ router.get('/', optionalAuth, (req, res) => {
     // Category filter (accepts categoryId, slug, or name; ignores 'all')
     if (category && category !== 'all' && category !== 'undefined' && category !== 'null' && category.trim()) {
       const catKey = category.trim().toLowerCase();
-      const matchedCat = categoryMap.get(catKey) || categoryMap.get(category.trim());
+      const matchedCat = categoryMap.get(catKey) || allCategories.find(c => 
+        c.id.toLowerCase() === catKey || 
+        (c.slug && c.slug.toLowerCase() === catKey) ||
+        (c.name && c.name.toLowerCase().includes(catKey)) ||
+        (c.slug && c.slug.toLowerCase().includes(catKey))
+      );
       if (matchedCat) {
         products = products.filter(p => p.categoryId === matchedCat.id);
       } else {

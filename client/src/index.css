@@ -108,24 +108,45 @@
 }
 
 /* =========================================================
-   MOBILE HOMEPAGE — DARK PREMIUM THEME SYSTEM
+   MOBILE & DESKTOP DESIGN SYSTEM — MODERN, BRIGHT & LUXURIOUS
    ========================================================= */
 
-/* Dark Mobile Background */
-.mobile-dark-bg {
-  background-color: #080c14;
+/* Bright Clean Mobile Background */
+.mobile-bright-bg {
+  background-color: #f8fafc;
 }
 
-/* Dark premium gradient */
-.gradient-mobile-accent {
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+/* Modern clean card surface */
+.mobile-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
+}
+
+/* Light skeleton shimmer */
+@keyframes shimmer-light {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-light {
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 25%,
+    #e2e8f0 50%,
+    #f1f5f9 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer-light 1.4s ease-in-out infinite;
+  border-radius: 12px;
 }
 
 /* Fade In Up animation for sections */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -134,35 +155,17 @@
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out forwards;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-fade-in-up-delay-1 { animation-delay: 0.1s; }
-.animate-fade-in-up-delay-2 { animation-delay: 0.2s; }
-.animate-fade-in-up-delay-3 { animation-delay: 0.3s; }
-
-/* Skeleton shimmer for dark mode */
-@keyframes shimmer-dark {
-  0% { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
-
-.skeleton-dark {
-  background: linear-gradient(
-    90deg,
-    #1a2035 25%,
-    #222b42 50%,
-    #1a2035 75%
-  );
-  background-size: 400px 100%;
-  animation: shimmer-dark 1.4s ease-in-out infinite;
-  border-radius: 10px;
-}
+.animate-fade-in-up-delay-1 { animation-delay: 0.08s; }
+.animate-fade-in-up-delay-2 { animation-delay: 0.16s; }
+.animate-fade-in-up-delay-3 { animation-delay: 0.24s; }
 
 /* Heart pop animation for wishlist */
 @keyframes heartPop {
   0%   { transform: scale(1); }
-  40%  { transform: scale(1.4); }
+  40%  { transform: scale(1.35); }
   70%  { transform: scale(0.9); }
   100% { transform: scale(1); }
 }
@@ -192,14 +195,16 @@
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* Category active glow */
-.category-active-glow {
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5), 0 0 24px rgba(99, 102, 241, 0.2);
+/* Category active glow / pill */
+.category-active-pill {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.4);
 }
 
 /* Gaming glow effect */
 .gaming-glow {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.35), 0 0 40px rgba(59, 130, 246, 0.15);
 }
 
 /* Safe area bottom padding */
@@ -207,33 +212,40 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Dark mobile card surface */
-.mobile-card {
-  background: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-}
-
 /* Active nav gradient underline */
 .nav-active-indicator {
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, #4f46e5, #8b5cf6);
   height: 3px;
   border-radius: 2px;
 }
 
-/* Product card image overlay gradient */
-.product-img-overlay {
-  background: linear-gradient(
-    to bottom,
-    transparent 60%,
-    rgba(8, 12, 20, 0.6) 100%
-  );
+/* Product card image subtle container */
+.product-img-card {
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Press feedback for touch */
 .press-feedback {
-  transition: transform 0.1s ease;
+  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .press-feedback:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
+  opacity: 0.9;
 }
+
+/* Voice search pulsing animation */
+@keyframes voicePulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  70% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.animate-voice-recording {
+  animation: voicePulse 1.5s infinite;
+}
+

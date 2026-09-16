@@ -22,40 +22,33 @@ export const FloatingCartBar = ({ onNavigate }) => {
 
   return (
     <div
-      className="fixed left-0 right-0 z-40 px-4 animate-slide-up"
+      className="fixed left-0 right-0 z-30 px-3 sm:px-4 animate-slide-up"
       style={{
-        bottom: 'calc(64px + env(safe-area-inset-bottom, 0px) + 8px)',
+        bottom: 'calc(58px + env(safe-area-inset-bottom, 0px) + 6px)',
         pointerEvents: 'auto'
       }}
     >
       <div
-        className="flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
-        style={{
-          background: 'rgba(17, 24, 39, 0.97)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: '0 -4px 30px rgba(59,130,246,0.15), 0 8px 32px rgba(0,0,0,0.4)'
-        }}
+        className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl max-w-md mx-auto"
       >
         {/* Cart icon + item count */}
         <button
+          type="button"
           onClick={handleCartOpen}
-          className="relative flex items-center gap-2 cursor-pointer press-feedback flex-1"
+          className="relative flex items-center gap-2.5 cursor-pointer press-feedback flex-1"
           aria-label={`Cart with ${itemCount} items`}
         >
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(59,130,246,0.15)' }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-indigo-50 text-indigo-600 border border-indigo-100"
           >
-            <ShoppingCart className="w-4 h-4" style={{ color: '#60a5fa' }} />
+            <ShoppingCart className="w-4 h-4" />
           </div>
-          <div>
-            <div className="text-[11px] font-black" style={{ color: '#e2e8f0' }}>
-              {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
+          <div className="text-left">
+            <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 leading-none">
+              {itemCount} {itemCount === 1 ? 'Item' : 'Items'} in Cart
             </div>
             <div
-              className="text-xs font-black"
-              style={{ color: '#f1f5f9' }}
+              className="text-sm font-black text-slate-900 leading-tight mt-0.5"
             >
               {formatPrice(displayTotal)}
             </div>
@@ -63,16 +56,13 @@ export const FloatingCartBar = ({ onNavigate }) => {
         </button>
 
         {/* Divider */}
-        <div
-          className="w-px h-8 shrink-0"
-          style={{ background: 'rgba(255,255,255,0.1)' }}
-        />
+        <div className="w-px h-7 bg-slate-200 shrink-0" />
 
         {/* Checkout CTA */}
         <button
+          type="button"
           onClick={handleCheckout}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer press-feedback shrink-0"
-          style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#ffffff' }}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-200 cursor-pointer press-feedback shrink-0"
           aria-label="Proceed to checkout"
         >
           <span>Checkout</span>

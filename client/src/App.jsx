@@ -82,8 +82,10 @@ function MainLayout() {
     setIsAuthModalOpen(true);
   };
 
+  const isGamingRoute = currentRoute === 'gaming';
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#060914] text-slate-100 selection:bg-indigo-500 selection:text-white">
+    <div className={`min-h-screen flex flex-col ${isGamingRoute ? 'bg-[#060914] text-slate-100' : 'bg-[#f8fafc] text-slate-900'} selection:bg-indigo-600 selection:text-white transition-colors duration-200`}>
       
       {/* Top Navbar */}
       <Header

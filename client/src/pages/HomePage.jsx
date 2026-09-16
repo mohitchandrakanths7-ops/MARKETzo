@@ -223,22 +223,26 @@ export const HomePage = ({ onNavigate }) => {
     <div className="overflow-x-hidden">
 
       {/* =======================================================================
-          MOBILE HOMEPAGE — Dark Premium UI (hidden on md+)
+          MOBILE HOMEPAGE — Bright Modern Aesthetic UI (hidden on md+)
           ======================================================================= */}
       <div
-        className="md:hidden min-h-screen pb-40"
-        style={{ background: '#080c14' }}
+        className="md:hidden min-h-screen pb-36 bg-[#f8fafc] text-slate-900"
       >
         {/* Sticky compact header */}
         <MobileHeader onNavigate={onNavigate} />
 
+        {/* 🎮 Gaming Zone Top-Level Destination Banner / Card */}
+        <div className="pt-2">
+          <GamingZoneBanner onNavigate={onNavigate} />
+        </div>
+
         {/* Greeting headline */}
         <HeroGreeting />
 
-        {/* Dark glass search bar */}
+        {/* Clean bright search bar with voice search & suggestions */}
         <MobileSearchBar onNavigate={onNavigate} />
 
-        {/* Category horizontal pill scroller */}
+        {/* Category horizontal pill scroller with exact 7 departments */}
         <CategoryScroller onNavigate={onNavigate} />
 
         {/* Hero promotional carousel */}
@@ -267,18 +271,35 @@ export const HomePage = ({ onNavigate }) => {
           />
         )}
 
-        {/* 🎮 Gaming Zone Banner */}
-        <GamingZoneBanner onNavigate={onNavigate} />
+        {/* 2-Column Responsive Mobile Product Grid Showcase */}
+        <div className="px-3 sm:px-4 mb-6 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-1.5">
+                <span>🛍️</span>
+                <span>Recommended For You</span>
+              </h2>
+              <p className="text-[11px] text-slate-500 font-medium">Top picks with 2-Day Express Shipping</p>
+            </div>
+            <button
+              onClick={() => onNavigate('products', {})}
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+            >
+              See All →
+            </button>
+          </div>
 
-        {/* Just For You — personalized or trending fallback */}
-        <ProductCarousel
-          title={isAuthenticated ? 'Just For You' : 'Popular on MARKETZO'}
-          emoji="✨"
-          products={pickedProducts.length > 0 ? pickedProducts : trendingProducts}
-          isLoading={isLoading}
-          onNavigate={onNavigate}
-          viewAllParams={{}}
-        />
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5">
+            {(pickedProducts.length > 0 ? pickedProducts : trendingProducts).slice(0, 6).map(p => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                onNavigate={onNavigate}
+                layout="grid"
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Trending products */}
         {trendingProducts.length > 0 && (
@@ -301,9 +322,6 @@ export const HomePage = ({ onNavigate }) => {
 
         {/* MARKETZO Promise trust section */}
         <MarketzoPromise />
-
-        {/* Bottom spacer for floating bar + nav */}
-        <div style={{ height: '8px' }} />
 
         {/* Floating cart summary bar (appears when cart has items) */}
         <FloatingCartBar onNavigate={onNavigate} />
@@ -331,6 +349,7 @@ export const HomePage = ({ onNavigate }) => {
           onNavigate={onNavigate}
         />
       </div>
+
 
       {/* =======================================================================
           DESKTOP HOMEPAGE — Modern 3-Column Dark Premium Layout (hidden on mobile)

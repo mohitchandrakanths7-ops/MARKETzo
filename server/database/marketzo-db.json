@@ -61,6 +61,29 @@
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Vance",
       "phone": "",
       "createdAt": "2026-08-26T05:39:58.261Z"
+    },
+    {
+      "id": "usr_e290b286",
+      "name": "Sarah Connor",
+      "email": "newuser_1789571760239@marketzo.com",
+      "password": "$2a$10$eaMZZJ1u0aubOTBsgDOtUeAfLje.bQq6vqBbxPQbfQtL83HY0d24O",
+      "role": "customer",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Sarah%20Connor",
+      "phone": "",
+      "createdAt": "2026-09-16T15:16:00.313Z",
+      "resetCode": null,
+      "resetCodeExpiry": null,
+      "updatedAt": "2026-09-16T15:16:00.489Z"
+    },
+    {
+      "id": "usr_f1c14963",
+      "name": "Alex Vance",
+      "email": "merchant_1789571760318@marketzo.com",
+      "password": "$2a$10$fiVOiRh/RuefFCqXEmVXU.nV39ivwmyHYWWcJC9CYiGk5YkbN3Mj2",
+      "role": "seller",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Vance",
+      "phone": "",
+      "createdAt": "2026-09-16T15:16:00.395Z"
     }
   ],
   "sellers": [
@@ -110,6 +133,23 @@
       "phone": "",
       "taxId": "TAX-PENDING",
       "joinedAt": "2026-08-26T05:39:58.265Z"
+    },
+    {
+      "id": "sel_a203e329",
+      "userId": "usr_f1c14963",
+      "storeName": "Vance Apex Tech 0318",
+      "slug": "vance-apex-tech-0318",
+      "logo": "https://api.dicebear.com/7.x/identicon/svg?seed=Vance%20Apex%20Tech%200318",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "description": "Authorized marketplace vendor providing verified authentic merchandise.",
+      "rating": 5,
+      "reviewCount": 0,
+      "status": "approved",
+      "commissionRate": 10,
+      "businessAddress": "100 Marketzo Commerce Ave",
+      "phone": "",
+      "taxId": "TAX-PENDING",
+      "joinedAt": "2026-09-16T15:16:00.396Z"
     }
   ],
   "categories": [
@@ -1516,6 +1556,86 @@
       "read": false,
       "link": "/seller?tab=orders",
       "createdAt": "2026-08-26T05:57:21.153Z"
+    },
+    {
+      "id": "notif_ea3af409",
+      "userId": "usr_test_seller_feat",
+      "title": "🎉 Product Featured on Marketzo Home Page!",
+      "message": "Great news! \"Apex Studio Pro ANC Wireless Headphones\" is now featured on the Marketzo Home Page in \"Featured Products\".",
+      "type": "feature_request",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-09-16T15:15:00.623Z"
+    },
+    {
+      "id": "notif_bf90a159",
+      "userId": "usr_test_seller_feat",
+      "title": "Home Page Feature Concluded",
+      "message": "The home page feature campaign for \"Apex Studio Pro ANC Wireless Headphones\" has been concluded.",
+      "type": "feature_request",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-09-16T15:15:00.667Z"
+    },
+    {
+      "id": "notif_97f31193",
+      "userId": "usr_test_seller_feat",
+      "title": "❌ Feature Request Update",
+      "message": "Your feature request for \"Apex Studio Pro ANC Wireless Headphones\" was declined: Category quota full.. You may submit another request.",
+      "type": "feature_request",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-09-16T15:15:00.715Z"
+    },
+    {
+      "id": "notif_729cf9d5",
+      "userId": "usr_e290b286",
+      "title": "Welcome to Marketzo! 🛍️",
+      "message": "Explore millions of authentic products, exclusive flash discounts, and rapid delivery.",
+      "type": "account",
+      "read": false,
+      "link": "/",
+      "createdAt": "2026-09-16T15:16:00.316Z"
+    },
+    {
+      "id": "notif_04fb8023",
+      "userId": "usr_f1c14963",
+      "title": "Welcome Merchant! 🏪",
+      "message": "Your merchant store \"Vance Apex Tech 0318\" is live and ready for listing products.",
+      "type": "account",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-09-16T15:16:00.397Z"
+    },
+    {
+      "id": "notif_59e46aec",
+      "userId": "usr_audit_cust1",
+      "title": "Order Confirmed! 🎉",
+      "message": "Your order #MKZ-975692 for $259.2 has been confirmed.",
+      "type": "order",
+      "read": false,
+      "link": "/account?tab=orders",
+      "createdAt": "2026-09-16T15:16:17.505Z"
+    },
+    {
+      "id": "notif_579324f6",
+      "userId": "usr_audit_seller1",
+      "title": "New Order Received 📦",
+      "message": "New order #MKZ-975692 received. Please review and dispatch.",
+      "type": "seller",
+      "read": false,
+      "link": "/seller?tab=orders",
+      "createdAt": "2026-09-16T15:16:17.505Z"
+    },
+    {
+      "id": "notif_a4b1c3ab",
+      "userId": "usr_audit_cust1",
+      "title": "Order #MKZ-975692: Confirmed",
+      "message": "Order confirmed and ready for dispatch.",
+      "type": "order",
+      "read": false,
+      "link": "/account?tab=orders",
+      "createdAt": "2026-09-16T15:16:17.559Z"
     }
   ],
   "conversations": [],

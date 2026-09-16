@@ -10,26 +10,21 @@ export const HeroGreeting = () => {
     : null;
 
   return (
-    <div className="px-4 pt-5 pb-2 animate-fade-in-up">
-      <div className="flex items-center gap-2 mb-1">
-        <Sparkles className="w-4 h-4" style={{ color: '#8b5cf6' }} />
-        <span className="text-sm font-semibold" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>
-          {firstName ? `Welcome back, ${firstName}` : 'Discover'}
+    <div className="px-3 sm:px-4 pt-3 pb-2 animate-fade-in-up">
+      <div className="flex items-center gap-1.5 mb-1">
+        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          {firstName ? `Welcome back, ${firstName}` : 'Curated Marketplace'}
         </span>
       </div>
-      <h1 className="text-3xl font-black leading-tight" style={{ color: '#f8fafc' }}>
+      <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
         {firstName ? (
-          <>Shop<br />
-            <span style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Premium Products
-            </span>
+          <>
+            Explore Your <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Daily Deals</span>
           </>
         ) : (
           <>
-            Premium<br />
-            <span style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Products
-            </span>
+            Shop <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Verified Brands</span> & Deals
           </>
         )}
       </h1>

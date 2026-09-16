@@ -1,40 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronRight, ChevronLeft, Tag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { api } from '../../services/api';
 
 const FALLBACK_BANNERS = [
   {
     id: 'fb1',
-    title: 'Summer Sale',
-    subtitle: 'Up to 40% OFF on top brands',
-    cta: 'Shop Now',
+    title: 'Summer Mega Sale',
+    subtitle: 'Extra 25% Off with code SUMMER25',
+    cta: 'Shop Deals',
     badge: '⚡ Limited Time',
-    gradient: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%)',
-    accentColor: '#818cf8',
+    gradient: 'linear-gradient(135deg, #312e81 0%, #4338ca 60%, #6366f1 100%)',
     tag: 'hotDeals',
     emoji: '🛍️'
   },
   {
     id: 'fb2',
-    title: 'New Arrivals',
-    subtitle: 'Fresh drops every day',
-    cta: 'Explore',
-    badge: '✨ Just In',
-    gradient: 'linear-gradient(135deg, #0f172a 0%, #0c1a2e 60%, #0f3460 100%)',
-    accentColor: '#38bdf8',
-    tag: 'new',
-    emoji: '🆕'
+    title: 'Flagship Mobiles & Tech',
+    subtitle: 'Next-Gen 5G Smartphones & Audio',
+    cta: 'Explore Tech',
+    badge: '✨ Top Picks',
+    gradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%)',
+    tag: 'featured',
+    emoji: '📱'
   },
   {
     id: 'fb3',
-    title: 'Top Rated',
-    subtitle: 'Products loved by millions',
-    cta: 'Browse',
-    badge: '⭐ Best Rated',
-    gradient: 'linear-gradient(135deg, #0f172a 0%, #1a0f2e 60%, #3b0764 100%)',
-    accentColor: '#a78bfa',
-    tag: 'featured',
-    emoji: '🏆'
+    title: 'Tailored Luxury Fashion',
+    subtitle: 'Italian Merino Wool & Streetwear',
+    cta: 'View Collection',
+    badge: '⭐ Designer',
+    gradient: 'linear-gradient(135deg, #451a03 0%, #78350f 60%, #b45309 100%)',
+    tag: 'new',
+    emoji: '👔'
   }
 ];
 
@@ -42,7 +39,6 @@ export const HeroCarousel = ({ onNavigate }) => {
   const [banners, setBanners] = useState([]);
   const [active, setActive] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     api.getBanners()
@@ -51,12 +47,11 @@ export const HeroCarousel = ({ onNavigate }) => {
           setBanners(res.banners.map(b => ({
             id: b.id,
             title: b.title || 'Special Offer',
-            subtitle: b.subtitle || b.description || 'Check out our latest deals',
+            subtitle: b.subtitle || b.description || 'Discover top verified marketplace listings',
             cta: b.ctaText || 'Shop Now',
             badge: b.badge || '🔥 Hot Deal',
             image: b.imageUrl || b.image,
-            gradient: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
-            accentColor: '#818cf8',
+            gradient: 'linear-gradient(135deg, #312e81 0%, #4338ca 100%)',
             tag: b.tag || 'hotDeals',
             emoji: b.emoji || '🛍️'
           })));
@@ -68,12 +63,12 @@ export const HeroCarousel = ({ onNavigate }) => {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Auto-advance carousel
+  // Auto advance
   useEffect(() => {
-    if (banners.length <= 1 || isPaused) return;
-    const t = setInterval(() => setActive(a => (a + 1) % banners.length), 4000);
+    if (banners.length <= 1) return;
+    const t = setInterval(() => setActive(a => (a + 1) % banners.length), 4500);
     return () => clearInterval(t);
-  }, [banners.length, isPaused]);
+  }, [banners.length]);
 
   const prev = () => setActive(a => (a - 1 + banners.length) % banners.length);
   const next = () => setActive(a => (a + 1) % banners.length);
@@ -88,8 +83,8 @@ export const HeroCarousel = ({ onNavigate }) => {
 
   if (isLoading) {
     return (
-      <div className="px-4 pb-4">
-        <div className="skeleton-dark h-44 rounded-3xl" />
+      <div className="px-3 sm:px-4 pb-3">
+        <div className="skeleton-light h-40 rounded-3xl" />
       </div>
     );
   }
@@ -98,112 +93,96 @@ export const HeroCarousel = ({ onNavigate }) => {
   if (!current) return null;
 
   return (
-    <div
-      className="px-4 pb-4 animate-fade-in-up animate-fade-in-up-delay-2"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
+    <div className="px-3 sm:px-4 pb-3 animate-fade-in-up">
       <div
-        className="relative rounded-3xl overflow-hidden"
-        style={{ height: '180px', background: current.gradient || 'linear-gradient(135deg,#0f172a,#1e1b4b)' }}
+        className="relative rounded-3xl overflow-hidden shadow-md"
+        style={{ height: '165px', background: current.gradient || 'linear-gradient(135deg, #312e81 0%, #4338ca 100%)' }}
       >
         {/* Background image if available */}
         {current.image && (
           <img
             src={current.image}
             alt={current.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
+            className="absolute inset-0 w-full h-full object-cover opacity-25"
             loading="lazy"
           />
         )}
 
         {/* Content overlay */}
-        <div className="absolute inset-0 flex flex-col justify-center p-6 z-10">
-          {/* Badge */}
-          <div
-            className="inline-flex items-center self-start gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold mb-3"
-            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: current.accentColor || '#a78bfa' }}
-          >
-            {current.badge}
+        <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-5 z-10 text-white">
+          <div>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 backdrop-blur-md border border-white/25 mb-1.5">
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              <span>{current.badge}</span>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-lg sm:text-xl font-black text-white leading-tight tracking-tight">
+              {current.title}
+            </h2>
+
+            {/* Subtitle */}
+            <p className="text-xs font-medium text-slate-200 mt-0.5 line-clamp-1">
+              {current.subtitle}
+            </p>
           </div>
-
-          {/* Title */}
-          <h2 className="text-2xl font-black text-white leading-tight mb-1">
-            {current.emoji && <span className="mr-2">{current.emoji}</span>}
-            {current.title}
-          </h2>
-
-          {/* Subtitle */}
-          <p className="text-xs font-medium mb-4" style={{ color: 'rgba(203,213,225,0.8)' }}>
-            {current.subtitle}
-          </p>
 
           {/* CTA */}
           <button
+            type="button"
             onClick={() => handleCta(current)}
-            className="self-start flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold cursor-pointer press-feedback"
-            style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#ffffff' }}
+            className="self-start flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-white text-indigo-900 shadow-md cursor-pointer press-feedback hover:bg-slate-50"
             aria-label={`${current.cta} — ${current.title}`}
           >
             <span>{current.cta}</span>
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Decorative circles */}
-        <div
-          className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-15"
-          style={{ background: current.accentColor || '#818cf8' }}
-        />
-        <div
-          className="absolute -right-4 bottom-0 w-20 h-20 rounded-full opacity-10"
-          style={{ background: current.accentColor || '#818cf8' }}
-        />
-
-        {/* Emoji large decoration */}
+        {/* Decorative large emoji */}
         {current.emoji && (
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 text-7xl opacity-20 select-none">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-7xl opacity-25 select-none pointer-events-none">
             {current.emoji}
           </div>
         )}
 
-        {/* Nav arrows (only if multiple banners) */}
+        {/* Navigation Arrows */}
         {banners.length > 1 && (
           <>
             <button
+              type="button"
               onClick={prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer"
-              style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 text-white cursor-pointer"
               aria-label="Previous banner"
             >
-              <ChevronLeft className="w-4 h-4 text-white" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button
+              type="button"
               onClick={next}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer"
-              style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/50 text-white cursor-pointer"
               aria-label="Next banner"
             >
-              <ChevronRight className="w-4 h-4 text-white" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </>
         )}
       </div>
 
-      {/* Dots */}
+      {/* Dots Indicator */}
       {banners.length > 1 && (
-        <div className="flex justify-center gap-1.5 mt-2.5">
+        <div className="flex justify-center gap-1.5 mt-2">
           {banners.map((_, i) => (
             <button
               key={i}
+              type="button"
               onClick={() => setActive(i)}
               className="rounded-full transition-all cursor-pointer"
               style={{
-                width: i === active ? '20px' : '6px',
-                height: '6px',
-                background: i === active
-                  ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)'
-                  : 'rgba(255,255,255,0.2)'
+                width: i === active ? '18px' : '6px',
+                height: '5px',
+                background: i === active ? '#4f46e5' : '#cbd5e1'
               }}
               aria-label={`Go to banner ${i + 1}`}
             />

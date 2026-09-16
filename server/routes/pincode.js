@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Serviceability & delivery estimation checker
-router.get('/check/:pincode', (req, res) => {
+router.get(['/check/:pincode', '/:pincode'], (req, res) => {
   const { pincode } = req.params;
   
   if (!pincode || pincode.length < 4) {

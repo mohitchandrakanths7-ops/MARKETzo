@@ -5,17 +5,16 @@ export const SellerCarousel = ({ sellers = [], isLoading = false, onNavigate }) 
 
   if (isLoading) {
     return (
-      <div className="mb-6">
-        <div className="px-4 mb-3 flex items-center justify-between">
-          <div className="skeleton-dark h-5 w-36 rounded" />
-          <div className="skeleton-dark h-4 w-16 rounded" />
+      <div className="mb-5">
+        <div className="px-3 sm:px-4 mb-2.5 flex items-center justify-between">
+          <div className="skeleton-light h-5 w-36 rounded" />
+          <div className="skeleton-light h-4 w-16 rounded" />
         </div>
-        <div className="px-4 flex gap-3 overflow-x-auto no-scrollbar">
+        <div className="px-3 sm:px-4 flex gap-3 overflow-x-auto no-scrollbar">
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className="skeleton-dark shrink-0 rounded-2xl"
-              style={{ width: '130px', height: '160px' }}
+              className="skeleton-light shrink-0 rounded-2xl w-[130px] h-[150px]"
             />
           ))}
         </div>
@@ -26,16 +25,16 @@ export const SellerCarousel = ({ sellers = [], isLoading = false, onNavigate }) 
   if (!sellers || sellers.length === 0) return null;
 
   return (
-    <div className="mb-6 animate-fade-in-up">
+    <div className="mb-5 animate-fade-in-up">
       {/* Header */}
-      <div className="px-4 mb-3 flex items-center justify-between">
-        <h2 className="text-base font-black" style={{ color: '#f1f5f9' }}>
-          🏆 Popular Sellers
+      <div className="px-3 sm:px-4 mb-2.5 flex items-center justify-between">
+        <h2 className="text-sm sm:text-base font-black text-slate-900">
+          🏆 Verified Merchants & Stores
         </h2>
         <button
+          type="button"
           onClick={() => onNavigate('products', {})}
-          className="flex items-center gap-0.5 text-xs font-semibold cursor-pointer press-feedback"
-          style={{ color: '#818cf8' }}
+          className="flex items-center gap-0.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer press-feedback"
           aria-label="View all sellers"
         >
           <span>View All</span>
@@ -44,40 +43,34 @@ export const SellerCarousel = ({ sellers = [], isLoading = false, onNavigate }) 
       </div>
 
       {/* Horizontal carousel */}
-      <div className="px-4 flex gap-3 overflow-x-auto no-scrollbar">
+      <div className="px-3 sm:px-4 flex gap-3 overflow-x-auto no-scrollbar py-1">
         {sellers.map((seller) => (
           <button
             key={seller.id}
+            type="button"
             onClick={() => onNavigate('products', { sellerId: seller.id })}
-            className="shrink-0 flex flex-col items-center p-3 rounded-2xl cursor-pointer press-feedback"
-            style={{
-              width: '130px',
-              background: '#111827',
-              border: '1px solid rgba(255,255,255,0.06)'
-            }}
+            className="shrink-0 flex flex-col items-center p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-all cursor-pointer press-feedback w-[135px]"
             aria-label={`Visit ${seller.storeName} store`}
           >
             {/* Logo */}
             <div
-              className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center mb-2 shrink-0"
-              style={{ background: 'linear-gradient(135deg,#1e2d45,#0f172a)', border: '1px solid rgba(255,255,255,0.1)' }}
+              className="w-13 h-13 rounded-2xl overflow-hidden flex items-center justify-center mb-2 shrink-0 bg-slate-50 border border-slate-200/80 p-1"
             >
-              {seller.storeLogo ? (
+              {seller.logo || seller.storeLogo ? (
                 <img
-                  src={seller.storeLogo}
+                  src={seller.logo || seller.storeLogo}
                   alt={seller.storeName}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-xl"
                   loading="lazy"
                 />
               ) : (
-                <Store className="w-6 h-6" style={{ color: '#818cf8' }} />
+                <Store className="w-6 h-6 text-indigo-600" />
               )}
             </div>
 
             {/* Name */}
             <span
-              className="text-xs font-bold text-center line-clamp-1 w-full"
-              style={{ color: '#e2e8f0' }}
+              className="text-xs font-extrabold text-slate-900 text-center line-clamp-1 w-full"
             >
               {seller.storeName}
             </span>
@@ -85,8 +78,8 @@ export const SellerCarousel = ({ sellers = [], isLoading = false, onNavigate }) 
             {/* Rating */}
             {seller.rating > 0 && (
               <div className="flex items-center gap-1 mt-1">
-                <Star className="w-3 h-3" style={{ color: '#fbbf24', fill: '#fbbf24' }} />
-                <span className="text-[10px] font-semibold" style={{ color: '#fbbf24' }}>
+                <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                <span className="text-[10px] font-bold text-amber-900">
                   {seller.rating.toFixed(1)}
                 </span>
               </div>
@@ -95,11 +88,10 @@ export const SellerCarousel = ({ sellers = [], isLoading = false, onNavigate }) 
             {/* Verified badge */}
             {seller.isVerified && (
               <div
-                className="flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' }}
+                className="flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200"
               >
-                <ShieldCheck className="w-2.5 h-2.5" style={{ color: '#10b981' }} />
-                <span className="text-[9px] font-bold" style={{ color: '#10b981' }}>Verified</span>
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Verified</span>
               </div>
             )}
           </button>

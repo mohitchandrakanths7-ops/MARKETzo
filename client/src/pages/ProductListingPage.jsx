@@ -166,32 +166,33 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
           <p className="text-xs text-slate-500 mt-0.5">Showing {products.length} of {total} verified marketplace listings</p>
         </div>
 
-        {/* View mode & Sorting controls */}
-        <div className="flex items-center gap-3">
+        {/* View mode & Sorting controls for Tablet/Desktop & Mobile */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           
           {/* Mobile Filter Button Trigger */}
           <button
             onClick={() => setShowMobileFilter(true)}
-            className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-800 shadow-2xs cursor-pointer press-feedback min-h-[42px]"
           >
             <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
-            <span>Filters</span>
+            <span>FILTER</span>
           </button>
 
-          {/* Sort Selector */}
-          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          {/* Sort Selector Button / Dropdown */}
+          <div className="flex-1 sm:flex-initial flex items-center gap-2 bg-white px-3 py-2 rounded-2xl border border-slate-200 shadow-2xs min-h-[42px]">
+            <ArrowUpDown className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
             <select
               value={filters.sort}
               onChange={(e) => handleFilterChange('sort', e.target.value)}
-              className="bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer"
+              className="w-full bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer"
+              aria-label="Sort products by"
             >
-              <option value="relevance">Sort: Featured & Relevant</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Customer Rating</option>
-              <option value="discount">Discount Percentage</option>
-              <option value="newest">Newest Arrivals</option>
+              <option value="relevance">SORT: Relevance</option>
+              <option value="price-low">SORT: Price Low to High</option>
+              <option value="price-high">SORT: Price High to Low</option>
+              <option value="rating">SORT: Top Rated</option>
+              <option value="discount">SORT: Highest Discount</option>
+              <option value="newest">SORT: Newest</option>
             </select>
           </div>
 
@@ -200,7 +201,7 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg transition-all ${
-                viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Grid View"
             >
@@ -209,7 +210,7 @@ export const ProductListingPage = ({ routeParams = {}, onNavigate }) => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-lg transition-all ${
-                viewMode === 'list' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                viewMode === 'list' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="List View"
             >
