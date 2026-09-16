@@ -10,29 +10,30 @@ const PROMISES = [
 
 export const MarketzoPromise = () => {
   return (
-    <div className="px-3 sm:px-4 mb-6 animate-fade-in-up">
+    <div className="px-3.5 mb-6 animate-fade-in-up">
       {/* Header */}
-      <h2 className="text-sm sm:text-base font-black text-slate-900 mb-2.5">
-        🛡️ MARKETZO Buyer Promise
+      <h2 className="text-sm sm:text-base font-black text-white mb-3 flex items-center gap-1.5">
+        <span>🛡️</span>
+        <span>MARKETZO Buyer Promise</span>
       </h2>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5">
         {PROMISES.map(({ emoji, label, desc }, i) => (
           <div
             key={i}
-            className="flex items-start gap-2.5 p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs"
+            className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#111827] border border-white/10 shadow-md"
           >
             {/* Icon */}
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base shrink-0 bg-indigo-50 border border-indigo-100">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base shrink-0 bg-[#0a0f1d] border border-white/5">
               {emoji}
             </div>
             {/* Text */}
             <div className="min-w-0">
-              <div className="text-xs font-black text-slate-900 leading-tight">
+              <div className="text-xs font-bold text-white leading-tight">
                 {label}
               </div>
-              <div className="text-[10px] text-slate-500 mt-0.5 leading-snug">
+              <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">
                 {desc}
               </div>
             </div>

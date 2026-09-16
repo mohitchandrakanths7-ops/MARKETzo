@@ -12,6 +12,7 @@ import {
   Building, 
   Banknote,
   ArrowRight,
+  ArrowLeft,
   PackageCheck,
   Check
 } from 'lucide-react';
@@ -226,10 +227,31 @@ export const CheckoutPage = ({ onNavigate }) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <div className="min-h-screen bg-[#080c14] md:bg-transparent text-white md:text-slate-900 pb-28 md:pb-16 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6 sm:space-y-8 transition-colors">
       
-      {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+      {/* Mobile Top Navigation Bar */}
+      <div className="md:hidden sticky top-0 z-30 bg-[#080c14]/95 backdrop-blur-xl border-b border-white/10 -mx-3.5 px-3.5 py-2.5 flex items-center justify-between mb-3 shadow-md">
+        <button
+          type="button"
+          onClick={() => onNavigate('cart')}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#111827] text-slate-300 hover:text-white border border-white/10 cursor-pointer press-feedback text-xs font-bold"
+        >
+          <ArrowLeft className="w-4 h-4 text-blue-400" />
+          <span>Cart</span>
+        </button>
+
+        <span className="text-xs font-bold text-white">
+          Secure Checkout
+        </span>
+
+        <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-800">
+          <Lock className="w-3 h-3" />
+          <span>SSL</span>
+        </div>
+      </div>
+
+      {/* Header (Desktop) */}
+      <div className="hidden md:flex items-center justify-between pb-4 border-b border-slate-200">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Secure Checkout

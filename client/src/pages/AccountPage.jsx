@@ -31,7 +31,8 @@ import {
   MessageSquare,
   ExternalLink,
   Layers,
-  Globe
+  Globe,
+  ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -287,10 +288,37 @@ export const AccountPage = ({ routeParams = {}, onNavigate }) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="min-h-screen bg-[#080c14] md:bg-transparent text-white md:text-slate-900 pb-28 md:pb-16 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8 transition-colors">
       
+      {/* Mobile Top Navigation Bar */}
+      <div className="md:hidden sticky top-0 z-30 bg-[#080c14]/95 backdrop-blur-xl border-b border-white/10 -mx-3.5 px-3.5 py-2.5 flex items-center justify-between mb-4 shadow-md">
+        <button
+          type="button"
+          onClick={() => onNavigate('home')}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#111827] text-slate-300 hover:text-white border border-white/10 cursor-pointer press-feedback text-xs font-bold"
+        >
+          <ArrowLeft className="w-4 h-4 text-blue-400" />
+          <span>Home</span>
+        </button>
+
+        <span className="text-xs font-bold text-white">
+          My Account
+        </span>
+
+        <button
+          onClick={() => {
+            logout();
+            onNavigate('home');
+          }}
+          className="p-2 rounded-xl bg-[#111827] text-rose-400 border border-white/10 text-xs font-bold"
+          title="Sign Out"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
       {/* Account Hero Banner */}
-      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+      <div className="bg-[#111827] md:bg-slate-900 rounded-3xl p-5 sm:p-8 text-white border border-white/10 md:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xl">
         <div className="flex items-center gap-4 text-center sm:text-left">
           <div className="relative">
             <img

@@ -46,8 +46,6 @@ import { useAuth } from '../context/AuthContext';
 
 // ── Mobile Homepage Components ────────────────────────────────────────────────
 import { MobileHeader } from '../components/home/MobileHeader';
-import { HeroGreeting } from '../components/home/HeroGreeting';
-import { MobileSearchBar } from '../components/home/MobileSearchBar';
 import { CategoryScroller } from '../components/home/CategoryScroller';
 import { HeroCarousel } from '../components/home/HeroCarousel';
 import { ProductCarousel } from '../components/home/ProductCarousel';
@@ -68,42 +66,19 @@ import { DesktopTopStores } from '../components/home/DesktopTopStores';
 import { DesktopRecommended } from '../components/home/DesktopRecommended';
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ICON_MAP = {
-  Headphones,
-  Smartphone,
-  Laptop,
-  Shirt,
-  Gem,
-  Home,
-  Sparkles,
-  Activity,
-  ShoppingBag,
-  Watch,
-  BookOpen,
-  Gamepad2
-};
-
 export const HomePage = ({ onNavigate }) => {
   const { user, isAuthenticated } = useAuth();
   const { formatPrice, currentCurrency, activeCurrencyInfo } = useCurrency();
 
   // Core Data States
   const [banners, setBanners] = useState([]);
-  const [activeBanner, setActiveBanner] = useState(0);
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [flashDeals, setFlashDeals] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [trustedSellers, setTrustedSellers] = useState([]);
   const [pickedProducts, setPickedProducts] = useState([]);
-  const [recentlyViewed, setRecentlyViewed] = useState([]);
-  const [wholesaleProducts, setWholesaleProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // AI Hero Search State
-  const [aiQuery, setAiQuery] = useState('');
-  const [isAiSearching, setIsAiSearching] = useState(false);
-  const [aiSearchResults, setAiSearchResults] = useState(null);
 
   // Modals
   const [showAiAssistant, setShowAiAssistant] = useState(false);
@@ -112,8 +87,8 @@ export const HomePage = ({ onNavigate }) => {
   const [dealModalProduct, setDealModalProduct] = useState(null);
   const [rfqModalProduct, setRfqModalProduct] = useState(null);
 
-  // Live Flash Deals Countdown Timer
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 18, seconds: 42 });
+  // Live Flash Deals Countdown Timer (02:18:45)
+  const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 18, seconds: 45 });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -159,22 +134,7 @@ export const HomePage = ({ onNavigate }) => {
 
         if (prodRes && prodRes.success) {
           const all = prodRes.products || [];
-          // Flash deals: products with >= 20% discount
-          setFlashDeals(all.filter(p => (p.discountPercent || 0) >= 20 || p.isHotDeal).slice(0, 4));
-          // Wholesale products: products with MOQ or high stock
-          setWholesaleProducts(all.filter(p => (p.stock || 0) >= 15).slice(0, 4));
-
-          // Load recently viewed from localStorage or fallback
-          try {
-            const storedRecent = JSON.parse(localStorage.getItem('marketzo_recently_viewed') || '[]');
-            if (Array.isArray(storedRecent) && storedRecent.length > 0) {
-              setRecentlyViewed(storedRecent.slice(0, 6));
-            } else {
-              setRecentlyViewed(all.slice(0, 5));
-            }
-          } catch (e) {
-            setRecentlyViewed(all.slice(0, 5));
-          }
+          setFlashDeals(all.filter(p => (p.discountPercent || 0) >= 20 || p.isHotDeal).slice(0, 6));
         }
       } catch (err) {
         console.error('Home load error:', err);
@@ -186,69 +146,30 @@ export const HomePage = ({ onNavigate }) => {
     loadHomeData();
   }, []);
 
-  // Handle AI Hero Search
-  const handleAiHeroSubmit = async (e, customPrompt) => {
-    if (e) e.preventDefault();
-    const queryToSearch = customPrompt || aiQuery;
-    if (!queryToSearch || !queryToSearch.trim()) return;
-
-    try {
-      setIsAiSearching(true);
-      const res = await api.askAiAssistant({
-        query: queryToSearch.trim(),
-        currency: currentCurrency,
-        exchangeRate: activeCurrencyInfo?.rate || 1
-      });
-
-      if (res && res.success) {
-        setAiSearchResults({
-          query: queryToSearch,
-          reply: res.replyText || res.reply,
-          products: res.recommendations || []
-        });
-      }
-    } catch (err) {
-      console.error('AI search error:', err);
-    } finally {
-      setIsAiSearching(false);
-    }
-  };
-
-  const handleLaunchAiWithPrompt = (promptText) => {
-    setAiPromptPreload(promptText);
-    setShowAiAssistant(true);
-  };
+  const formattedTimer = `${String(timeLeft.hours).padStart(2,'0')}:${String(timeLeft.minutes).padStart(2,'0')}:${String(timeLeft.seconds).padStart(2,'0')}`;
 
   return (
     <div className="overflow-x-hidden">
 
       {/* =======================================================================
-          MOBILE HOMEPAGE — Bright Modern Aesthetic UI (hidden on md+)
+          MOBILE HOMEPAGE — Premium Futuristic Dark Interface (hidden on md+)
           ======================================================================= */}
       <div
-        className="md:hidden min-h-screen pb-36 bg-[#f8fafc] text-slate-900"
+        className="md:hidden min-h-screen pb-36 bg-[#080c14] text-white"
       >
-        {/* Sticky compact header */}
+        {/* Sticky compact header with Logo, Cart, Profile, Location, and Search Field */}
         <MobileHeader onNavigate={onNavigate} />
 
-        {/* 🎮 Gaming Zone Top-Level Destination Banner / Card */}
-        <div className="pt-2">
-          <GamingZoneBanner onNavigate={onNavigate} />
-        </div>
-
-        {/* Greeting headline */}
-        <HeroGreeting />
-
-        {/* Clean bright search bar with voice search & suggestions */}
-        <MobileSearchBar onNavigate={onNavigate} />
-
-        {/* Category horizontal pill scroller with exact 7 departments */}
+        {/* 1. Category horizontal scrollable pills with exact departments */}
         <CategoryScroller onNavigate={onNavigate} />
 
-        {/* Hero promotional carousel */}
+        {/* 2. Hero promotional carousel below categories */}
         <HeroCarousel onNavigate={onNavigate} />
 
-        {/* Featured Products horizontal carousel */}
+        {/* 3. 🎮 Gaming Zone Top-Level Destination Card */}
+        <GamingZoneBanner onNavigate={onNavigate} />
+
+        {/* 4. Featured Products horizontal carousel */}
         <ProductCarousel
           title="Featured Products"
           emoji="⭐"
@@ -258,12 +179,13 @@ export const HomePage = ({ onNavigate }) => {
           viewAllParams={{ featured: 'true' }}
         />
 
-        {/* Flash Deals — only if products exist */}
+        {/* 5. ⚡ Flash Deals with live countdown timer */}
         {(flashDeals.length > 0 || isLoading) && (
           <ProductCarousel
             title="Flash Deals"
-            emoji="🔥"
-            subtitle={`${String(timeLeft.hours).padStart(2,'0')}:${String(timeLeft.minutes).padStart(2,'0')}:${String(timeLeft.seconds).padStart(2,'0')} left`}
+            emoji="⚡"
+            timerText={formattedTimer}
+            isFlashDeal={true}
             products={flashDeals}
             isLoading={isLoading}
             onNavigate={onNavigate}
@@ -271,19 +193,19 @@ export const HomePage = ({ onNavigate }) => {
           />
         )}
 
-        {/* 2-Column Responsive Mobile Product Grid Showcase */}
-        <div className="px-3 sm:px-4 mb-6 animate-fade-in-up">
+        {/* 6. 2-Column Responsive Mobile Product Grid Showcase */}
+        <div className="px-3.5 mb-6 animate-fade-in-up">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-1.5">
+              <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-1.5">
                 <span>🛍️</span>
                 <span>Recommended For You</span>
               </h2>
-              <p className="text-[11px] text-slate-500 font-medium">Top picks with 2-Day Express Shipping</p>
+              <p className="text-[11px] text-slate-400 font-medium">Top picks with 2-Day Express Shipping</p>
             </div>
             <button
               onClick={() => onNavigate('products', {})}
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+              className="text-xs font-bold text-blue-400 hover:text-blue-300 cursor-pointer press-feedback"
             >
               See All →
             </button>
@@ -301,7 +223,7 @@ export const HomePage = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Trending products */}
+        {/* 7. Trending Products */}
         {trendingProducts.length > 0 && (
           <ProductCarousel
             title="Trending Now"
@@ -313,20 +235,20 @@ export const HomePage = ({ onNavigate }) => {
           />
         )}
 
-        {/* Popular Sellers */}
+        {/* 8. Popular Verified Merchants */}
         <SellerCarousel
           sellers={trustedSellers}
           isLoading={isLoading}
           onNavigate={onNavigate}
         />
 
-        {/* MARKETZO Promise trust section */}
+        {/* 9. MARKETZO Promise trust section */}
         <MarketzoPromise />
 
-        {/* Floating cart summary bar (appears when cart has items) */}
+        {/* 10. Floating cart summary bar (appears when cart has items) */}
         <FloatingCartBar onNavigate={onNavigate} />
 
-        {/* Modals — reuse existing */}
+        {/* Modals */}
         <MakeDealModal
           isOpen={!!dealModalProduct}
           product={dealModalProduct}

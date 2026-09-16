@@ -147,7 +147,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#080B16] text-white shadow-md border-b border-white/5">
+    <header className="hidden md:block sticky top-0 z-40 bg-[#080B16] text-white shadow-md border-b border-white/5">
       {/* Top micro bar for announcements & currency selector */}
       <div className="bg-[#050811] px-3 sm:px-4 py-1.5 text-xs text-slate-300 border-b border-white/5 flex items-center justify-between gap-2 overflow-hidden">
         <div className="flex items-center gap-2 sm:gap-4 truncate">
