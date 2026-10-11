@@ -41,6 +41,9 @@ export const api = {
   // Auth
   login: (credentials) => request('/auth/login', { method: 'POST', body: credentials }),
   register: (userData) => request('/auth/register', { method: 'POST', body: userData }),
+  checkUsername: (username) => request(`/auth/check-username?username=${encodeURIComponent(username)}`),
+  generateUsername: () => request('/auth/generate-username'),
+  recoverPassword: (data) => request('/auth/recover-password', { method: 'POST', body: data }),
   becomeSeller: (data) => request('/auth/become-seller', { method: 'POST', body: data }),
   forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', body: { email } }),
   resetPassword: (data) => request('/auth/reset-password', { method: 'POST', body: data }),

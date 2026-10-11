@@ -333,13 +333,13 @@ export const AccountPage = ({ routeParams = {}, onNavigate }) => {
           </div>
           <div>
             <div className="flex items-center gap-2 justify-center sm:justify-start">
-              <h1 className="text-xl sm:text-2xl font-black text-white">{user?.name}</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-white">{user?.name || user?.username}</h1>
               <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 text-[10px] font-black uppercase tracking-wider border border-indigo-400/30">
                 {user?.role === 'seller' ? 'Verified Merchant' : user?.role === 'admin' ? 'Super Admin' : 'Shopper'}
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              {user?.email} • {user?.phone || 'No phone set'}
+              @{user?.username || 'user'}{user?.phone ? ` • ${user.phone}` : ''}
             </p>
           </div>
         </div>

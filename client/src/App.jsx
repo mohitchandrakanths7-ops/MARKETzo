@@ -7,7 +7,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { MobileBottomNav } from './components/common/MobileBottomNav';
-import { AuthModal } from './pages/AuthPages';
+import { AuthModal, LoginPage, RegisterPage, ForgotPasswordPage } from './pages/AuthPages';
 
 // Dynamic Lazy-Loaded Page Components for Lightning-Fast Initial Load
 const HomePage = React.lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
@@ -41,6 +41,9 @@ function MainLayout() {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       if (path.includes('gaming') || hash.includes('gaming')) return 'gaming';
+      if (path.includes('login') || hash.includes('login')) return 'login';
+      if (path.includes('register') || hash.includes('register')) return 'register';
+      if (path.includes('forgot') || hash.includes('forgot')) return 'forgot-password';
       if (path.includes('cart') || hash.includes('cart')) return 'cart';
       if (path.includes('checkout') || hash.includes('checkout')) return 'checkout';
       if (path.includes('seller') || hash.includes('seller')) return 'seller';
@@ -70,6 +73,9 @@ function MainLayout() {
       } else {
         const path = window.location.pathname.toLowerCase();
         if (path.includes('gaming')) setCurrentRoute('gaming');
+        else if (path.includes('login')) setCurrentRoute('login');
+        else if (path.includes('register')) setCurrentRoute('register');
+        else if (path.includes('forgot')) setCurrentRoute('forgot-password');
         else setCurrentRoute('home');
       }
     };
@@ -147,6 +153,24 @@ function MainLayout() {
 
           {currentRoute === 'admin' && (
             <AdminDashboard
+              onNavigate={navigate}
+            />
+          )}
+
+          {currentRoute === 'login' && (
+            <LoginPage
+              onNavigate={navigate}
+            />
+          )}
+
+          {currentRoute === 'register' && (
+            <RegisterPage
+              onNavigate={navigate}
+            />
+          )}
+
+          {currentRoute === 'forgot-password' && (
+            <ForgotPasswordPage
               onNavigate={navigate}
             />
           )}

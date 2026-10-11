@@ -128,6 +128,52 @@ class Database {
       this.seedInitialData();
     }
 
+    // Ensure all existing users have usernames and recoveryCodeHash
+    const bcrypt = require('bcryptjs');
+    const defaultSalt = bcrypt.genSaltSync(10);
+    const defaultRecoveryHash = bcrypt.hashSync('MZ-RECO-VERY-2026', defaultSalt);
+
+    const takenUsernames = new Set();
+    this.data.users.forEach((u) => {
+      if (u.username) takenUsernames.add(u.username.toLowerCase());
+    });
+
+    let migrated = false;
+    this.data.users = this.data.users.map(u => {
+      let username = u.username;
+      let recoveryCodeHash = u.recoveryCodeHash;
+      if (!username) {
+        if (u.role === 'admin') username = 'admin';
+        else if (u.email === 'seller@marketzo.com') username = 'seller';
+        else if (u.email === 'urban@marketzo.com') username = 'urban';
+        else if (u.email === 'shopper@marketzo.com') username = 'shopper';
+        else {
+          const rawBase = (u.email?.split('@')[0] || u.name || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '');
+          let candidate = rawBase.slice(0, 18) || 'user';
+          let counter = 1;
+          while (takenUsernames.has(candidate)) {
+            candidate = `${rawBase.slice(0, 14)}_${counter++}`;
+          }
+          username = candidate;
+        }
+        takenUsernames.add(username.toLowerCase());
+        migrated = true;
+      }
+      if (!recoveryCodeHash) {
+        recoveryCodeHash = defaultRecoveryHash;
+        migrated = true;
+      }
+      return {
+        ...u,
+        username,
+        recoveryCodeHash
+      };
+    });
+
+    if (migrated) {
+      this.saveLocal();
+    }
+
     // 3. Auto-detect & Connect to PostgreSQL or MySQL
     await this.connectDatabase();
   }

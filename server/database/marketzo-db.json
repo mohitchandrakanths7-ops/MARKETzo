@@ -7,7 +7,9 @@
       "password": "$2a$10$M5S/oRK0B.g6JEtREG0zY.tKkniXRwOm4IXCBmblYugkFfc6AbKT2",
       "role": "admin",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Admin",
-      "createdAt": "2026-01-01T00:00:00.000Z"
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "username": "admin",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_seller_01",
@@ -17,7 +19,9 @@
       "role": "seller",
       "phone": "+91 9876543210",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Acoustics",
-      "createdAt": "2026-01-05T00:00:00.000Z"
+      "createdAt": "2026-01-05T00:00:00.000Z",
+      "username": "seller",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_seller_02",
@@ -27,7 +31,9 @@
       "role": "seller",
       "phone": "+91 9876543211",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Urban",
-      "createdAt": "2026-01-10T00:00:00.000Z"
+      "createdAt": "2026-01-10T00:00:00.000Z",
+      "username": "urban",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_customer_01",
@@ -37,7 +43,9 @@
       "role": "customer",
       "phone": "+91 9876543212",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=David",
-      "createdAt": "2026-02-01T00:00:00.000Z"
+      "createdAt": "2026-02-01T00:00:00.000Z",
+      "username": "shopper",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_41414cbe",
@@ -50,7 +58,9 @@
       "createdAt": "2026-08-26T05:39:57.992Z",
       "resetCode": null,
       "resetCodeExpiry": null,
-      "updatedAt": "2026-08-26T05:39:58.680Z"
+      "updatedAt": "2026-08-26T05:39:58.680Z",
+      "username": "newuser_1787722797",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_a6019041",
@@ -60,7 +70,9 @@
       "role": "seller",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Vance",
       "phone": "",
-      "createdAt": "2026-08-26T05:39:58.261Z"
+      "createdAt": "2026-08-26T05:39:58.261Z",
+      "username": "merchant_178772279",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_e290b286",
@@ -73,7 +85,9 @@
       "createdAt": "2026-09-16T15:16:00.313Z",
       "resetCode": null,
       "resetCodeExpiry": null,
-      "updatedAt": "2026-09-16T15:16:00.489Z"
+      "updatedAt": "2026-09-16T15:16:00.489Z",
+      "username": "newuser_1789571760",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
     },
     {
       "id": "usr_f1c14963",
@@ -83,7 +97,78 @@
       "role": "seller",
       "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Vance",
       "phone": "",
-      "createdAt": "2026-09-16T15:16:00.395Z"
+      "createdAt": "2026-09-16T15:16:00.395Z",
+      "username": "merchant_178957176",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
+    },
+    {
+      "id": "usr_f73dc25e",
+      "name": "Sarah Connor",
+      "email": "newuser_1791711447597@marketzo.com",
+      "password": "$2a$10$.i1aFwzASHwlIiQjYONprer7mSECGcct4TbU.r6.nVrk3wOxFzxyG",
+      "role": "customer",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Sarah%20Connor",
+      "phone": "",
+      "createdAt": "2026-10-11T09:37:27.742Z",
+      "resetCode": null,
+      "resetCodeExpiry": null,
+      "updatedAt": "2026-10-11T09:37:28.125Z",
+      "username": "newuser_1791711447",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
+    },
+    {
+      "id": "usr_0657cfde",
+      "name": "Alex Vance",
+      "email": "merchant_1791711447783@marketzo.com",
+      "password": "$2a$10$e.oIvTJutmlAg.wyBELRuuybwofHbHxtOAIgf42KuzgAq0gvNaH8W",
+      "role": "seller",
+      "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Alex%20Vance",
+      "phone": "",
+      "createdAt": "2026-10-11T09:37:27.962Z",
+      "username": "merchant_179171144",
+      "recoveryCodeHash": "$2a$10$1YHlPkOefcBqXtx7GmeyWeVK.K4pAo9Us4Vl4Y6jWN2LCynIlU2zG"
+    },
+    {
+      "id": "usr_fddba056",
+      "username": "newuser_1791711819724",
+      "name": "Sarah Connor",
+      "email": "newuser_1791711819724@marketzo.com",
+      "password": "$2a$10$uJoU67SURY96oQokRyKpuupXAxcqoDvWpUY5CQMj7LzT314nrZEgm",
+      "recoveryCodeHash": "$2a$10$dX6JDwdn566SGiWmNQp5Z.P8YxAOjULK09Y.VMTt/4svZPQou9fza",
+      "role": "customer",
+      "avatar": "https://api.dicebear.com/7.x/identicon/svg?seed=newuser_1791711819724",
+      "phone": "",
+      "createdAt": "2026-10-11T09:43:39.947Z",
+      "resetCode": null,
+      "resetCodeExpiry": null,
+      "updatedAt": "2026-10-11T09:43:40.301Z"
+    },
+    {
+      "id": "usr_259d0c52",
+      "username": "merchant_1791711819953",
+      "name": "Alex Vance",
+      "email": "merchant_1791711819953@marketzo.com",
+      "password": "$2a$10$MVROrwtBsS5wOfGhTgDSwOP/DpdqRneZK7VbKovv4V9Y5ESRoCu2G",
+      "recoveryCodeHash": "$2a$10$MVROrwtBsS5wOfGhTgDSwONo7WYdNKaIgLANdokfXpHgAtAdavDmO",
+      "role": "seller",
+      "avatar": "https://api.dicebear.com/7.x/identicon/svg?seed=merchant_1791711819953",
+      "phone": "",
+      "createdAt": "2026-10-11T09:43:40.163Z"
+    },
+    {
+      "id": "usr_1a212ebf",
+      "username": "ZoNova_7136",
+      "name": "ZoNova_7136",
+      "email": "zonova_7136@marketzo.id",
+      "password": "$2a$10$Sgvx.yj8GSqJOFekIIa4AO9yLeN28H127wCcJmB9TslPHlIQRfUrW",
+      "recoveryCodeHash": "$2a$10$Sgvx.yj8GSqJOFekIIa4AOOQVvPYeJQy5JIdVi.KbRb1CpEZBlTFO",
+      "role": "customer",
+      "avatar": "https://api.dicebear.com/7.x/identicon/svg?seed=ZoNova_7136",
+      "phone": "",
+      "createdAt": "2026-10-11T09:53:17.426Z",
+      "resetCode": null,
+      "resetCodeExpiry": null,
+      "updatedAt": "2026-10-11T09:53:18.367Z"
     }
   ],
   "sellers": [
@@ -150,6 +235,40 @@
       "phone": "",
       "taxId": "TAX-PENDING",
       "joinedAt": "2026-09-16T15:16:00.396Z"
+    },
+    {
+      "id": "sel_9710b872",
+      "userId": "usr_0657cfde",
+      "storeName": "Vance Apex Tech 7784",
+      "slug": "vance-apex-tech-7784",
+      "logo": "https://api.dicebear.com/7.x/identicon/svg?seed=Vance%20Apex%20Tech%207784",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "description": "Authorized marketplace vendor providing verified authentic merchandise.",
+      "rating": 5,
+      "reviewCount": 0,
+      "status": "approved",
+      "commissionRate": 10,
+      "businessAddress": "100 Marketzo Commerce Ave",
+      "phone": "",
+      "taxId": "TAX-PENDING",
+      "joinedAt": "2026-10-11T09:37:27.963Z"
+    },
+    {
+      "id": "sel_f4e0807c",
+      "userId": "usr_259d0c52",
+      "storeName": "Vance Apex Tech 9953",
+      "slug": "vance-apex-tech-9953",
+      "logo": "https://api.dicebear.com/7.x/identicon/svg?seed=Vance%20Apex%20Tech%209953",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "description": "Authorized marketplace vendor providing verified authentic merchandise.",
+      "rating": 5,
+      "reviewCount": 0,
+      "status": "approved",
+      "commissionRate": 10,
+      "businessAddress": "100 Marketzo Commerce Ave",
+      "phone": "",
+      "taxId": "TAX-PENDING",
+      "joinedAt": "2026-10-11T09:43:40.165Z"
     }
   ],
   "categories": [
@@ -1636,6 +1755,56 @@
       "read": false,
       "link": "/account?tab=orders",
       "createdAt": "2026-09-16T15:16:17.559Z"
+    },
+    {
+      "id": "notif_fc9e6c41",
+      "userId": "usr_f73dc25e",
+      "title": "Welcome to Marketzo! 🛍️",
+      "message": "Explore millions of authentic products, exclusive flash discounts, and rapid delivery.",
+      "type": "account",
+      "read": false,
+      "link": "/",
+      "createdAt": "2026-10-11T09:37:27.780Z"
+    },
+    {
+      "id": "notif_91504a39",
+      "userId": "usr_0657cfde",
+      "title": "Welcome Merchant! 🏪",
+      "message": "Your merchant store \"Vance Apex Tech 7784\" is live and ready for listing products.",
+      "type": "account",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-10-11T09:37:27.966Z"
+    },
+    {
+      "id": "notif_afb7fbf0",
+      "userId": "usr_fddba056",
+      "title": "Welcome to MARKETzo! 🛍️",
+      "message": "Welcome to MARKETzo. Store your Recovery Key safely to protect your account.",
+      "type": "account",
+      "read": false,
+      "link": "/",
+      "createdAt": "2026-10-11T09:43:39.949Z"
+    },
+    {
+      "id": "notif_c76eaa5b",
+      "userId": "usr_259d0c52",
+      "title": "Welcome Merchant! 🏪",
+      "message": "Your merchant store \"Vance Apex Tech 9953\" is live and ready for listing products.",
+      "type": "account",
+      "read": false,
+      "link": "/seller",
+      "createdAt": "2026-10-11T09:43:40.167Z"
+    },
+    {
+      "id": "notif_1cd5b79d",
+      "userId": "usr_1a212ebf",
+      "title": "Welcome to MARKETzo! 🛍️",
+      "message": "Welcome to MARKETzo. Store your Recovery Key safely to protect your account.",
+      "type": "account",
+      "read": false,
+      "link": "/",
+      "createdAt": "2026-10-11T09:53:17.431Z"
     }
   ],
   "conversations": [],

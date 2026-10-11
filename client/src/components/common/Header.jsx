@@ -583,7 +583,7 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                   />
                   <div className="hidden lg:block">
                     <div className="text-[10px] text-slate-400 leading-none">Hello,</div>
-                    <div className="text-xs font-bold text-white truncate max-w-[90px] leading-tight">{user?.name.split(' ')[0]}</div>
+                    <div className="text-xs font-bold text-white truncate max-w-[90px] leading-tight">{(user?.username || user?.name || 'User').split(' ')[0]}</div>
                   </div>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
@@ -592,8 +592,10 @@ export const Header = ({ onNavigate, currentRoute, onOpenAuthModal }) => {
                 {showUserMenu && (
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
                     <div className="p-3 bg-slate-50 border-b border-slate-100">
-                      <div className="text-xs font-bold text-slate-800 truncate">{user?.name}</div>
-                      <div className="text-[11px] text-slate-500 truncate">{user?.email}</div>
+                      <div className="text-xs font-bold text-slate-800 truncate">@{user?.username || user?.name}</div>
+                      {user?.name && user.name !== user.username && (
+                        <div className="text-[11px] text-slate-500 truncate">{user.name}</div>
+                      )}
                       <div className="mt-1 inline-block px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-bold uppercase tracking-wider">
                         {user?.role} Account
                       </div>

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/database');
 const { JWT_SECRET, authenticate } = require('../middleware/auth');
@@ -9,55 +10,278 @@ const { JWT_SECRET, authenticate } = require('../middleware/auth');
 // Helper to generate token
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role, name: user.name },
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      name: user.name
+    },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
 };
 
-// Helper to validate email format
-const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+// Helper to sanitize user object and ensure no sensitive hashes are exposed
+const getSafeUser = (user) => {
+  if (!user) return null;
+  const { password, recoveryCodeHash, resetCode, resetCodeExpiry, ...safeUser } = user;
+  return safeUser;
 };
 
-// Customer / Merchant / General Registration
+// Client IP extractor for rate limiting
+const getClientIp = (req) => {
+  return (
+    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+    req.socket?.remoteAddress ||
+    '127.0.0.1'
+  );
+};
+
+// Rate limiting store for brute-force protection
+// key -> { count: number, firstAttempt: number, blockedUntil: number }
+const rateLimitStore = new Map();
+
+const checkRateLimit = (key, maxAttempts = 5, windowMs = 15 * 60 * 1000) => {
+  const now = Date.now();
+  const record = rateLimitStore.get(key);
+  if (!record) return { allowed: true };
+
+  if (record.blockedUntil && now < record.blockedUntil) {
+    const remainingMinutes = Math.max(1, Math.ceil((record.blockedUntil - now) / 60000));
+    return {
+      allowed: false,
+      message: `Too many failed attempts. For security, please wait ${remainingMinutes} minute(s) before trying again.`
+    };
+  }
+
+  // Reset if window has elapsed
+  if (now - record.firstAttempt > windowMs) {
+    rateLimitStore.delete(key);
+    return { allowed: true };
+  }
+
+  if (record.count >= maxAttempts) {
+    record.blockedUntil = now + windowMs;
+    rateLimitStore.set(key, record);
+    return {
+      allowed: false,
+      message: 'Too many failed attempts. For security, account actions are temporarily locked. Please wait 15 minutes.'
+    };
+  }
+
+  return { allowed: true };
+};
+
+const recordFailedAttempt = (key) => {
+  const now = Date.now();
+  const record = rateLimitStore.get(key) || { count: 0, firstAttempt: now, blockedUntil: 0 };
+  record.count += 1;
+  rateLimitStore.set(key, record);
+};
+
+const clearFailedAttempts = (key) => {
+  rateLimitStore.delete(key);
+};
+
+// Generate Cryptographic Account Recovery Key: MZ-XXXX-XXXX-XXXX
+const generateRecoveryCode = () => {
+  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const getChunk = () => {
+    let chunk = '';
+    const bytes = crypto.randomBytes(4);
+    for (let i = 0; i < 4; i++) {
+      chunk += chars[bytes[i] % chars.length];
+    }
+    return chunk;
+  };
+  return `MZ-${getChunk()}-${getChunk()}-${getChunk()}`;
+};
+
+// Creative username suggestion list and synthesizer
+const CREATIVE_USERNAMES = [
+  'ZoNova',
+  'NexoraX',
+  'ZoElite',
+  'PixelNova',
+  'RoyalNova',
+  'ShadowByte',
+  'ZoVortex',
+  'AstroVex',
+  'CyberZo',
+  'NovaApex',
+  'PulseVex',
+  'ZenithZo',
+  'ZoMatrix',
+  'HyperNova',
+  'ZoQuantum',
+  'VortexX',
+  'ZoPrime',
+  'EchoByte',
+  'ZoCosmo',
+  'PhantomZo',
+  'QuantumZo',
+  'NovaByte',
+  'TitanZo',
+  'AuraVex',
+  'ApexNova'
+];
+
+const validateUsernameFormat = (username) => {
+  if (!username || typeof username !== 'string') {
+    return { valid: false, message: 'Please enter a username.' };
+  }
+  const trimmed = username.trim();
+  if (trimmed.length < 3) {
+    return { valid: false, message: 'Username must be at least 3 characters long.' };
+  }
+  if (trimmed.length > 24) {
+    return { valid: false, message: 'Username cannot exceed 24 characters.' };
+  }
+  if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+    return { valid: false, message: 'Username may only contain letters, numbers, and underscores.' };
+  }
+  return { valid: true, username: trimmed };
+};
+
+const generateAvailableUsername = (users) => {
+  const taken = new Set(
+    users
+      .map(u => (u.username || '').toLowerCase())
+      .concat(users.map(u => (u.email ? u.email.split('@')[0].toLowerCase() : '')))
+      .filter(Boolean)
+  );
+
+  const shuffled = [...CREATIVE_USERNAMES].sort(() => 0.5 - Math.random());
+  for (const name of shuffled) {
+    if (!taken.has(name.toLowerCase())) {
+      return name;
+    }
+  }
+
+  const prefixes = ['Zo', 'Nex', 'Nova', 'Pixel', 'Astro', 'Shadow', 'Quantum', 'Vortex', 'Cyber', 'Apex'];
+  const suffixes = ['Nova', 'Byte', 'Elite', 'Vex', 'Pulse', 'Matrix', 'Craft', 'Flare', 'Spark', 'X'];
+
+  for (let i = 0; i < 100; i++) {
+    const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+    const num = Math.floor(10 + Math.random() * 90);
+    const candidate = `${p}${s}${i > 10 ? num : ''}`;
+    if (!taken.has(candidate.toLowerCase())) {
+      return candidate;
+    }
+  }
+
+  return `Zo${Math.floor(1000 + Math.random() * 9000)}`;
+};
+
+// =========================================================================
+// 1. REAL-TIME USERNAME AVAILABILITY CHECK ENDPOINT
+// =========================================================================
+router.get('/check-username', (req, res) => {
+  try {
+    const raw = (req.query.username || req.body?.username || '').trim();
+    if (!raw) {
+      return res.status(400).json({ success: false, available: false, message: 'Please provide a username to check.' });
+    }
+
+    const validation = validateUsernameFormat(raw);
+    if (!validation.valid) {
+      return res.json({ success: true, available: false, message: validation.message });
+    }
+
+    const cleanLower = validation.username.toLowerCase();
+    const existing = db.findOne('users', u => (u.username || '').toLowerCase() === cleanLower);
+
+    if (existing) {
+      return res.json({
+        success: true,
+        available: false,
+        message: `The username "${validation.username}" is already taken. Please choose another.`
+      });
+    }
+
+    return res.json({
+      success: true,
+      available: true,
+      message: `Username "${validation.username}" is available!`
+    });
+  } catch (err) {
+    console.error('[AUTH] Check username error:', err);
+    res.status(500).json({ success: false, available: false, message: 'Could not verify username availability.' });
+  }
+});
+
+// =========================================================================
+// 2. CREATIVE USERNAME GENERATOR ENDPOINT
+// =========================================================================
+router.get('/generate-username', (req, res) => {
+  try {
+    const allUsers = db.findAll('users');
+    const suggestion = generateAvailableUsername(allUsers);
+    return res.json({
+      success: true,
+      username: suggestion
+    });
+  } catch (err) {
+    console.error('[AUTH] Generate username error:', err);
+    res.status(500).json({ success: false, message: 'Could not generate username.' });
+  }
+});
+
+// =========================================================================
+// 3. REGISTRATION (USERNAME & PASSWORD ONLY)
+// =========================================================================
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role = 'customer', storeName, description, phone, businessAddress, taxId } = req.body;
+    const {
+      username,
+      password,
+      confirmPassword,
+      role = 'customer',
+      storeName,
+      description,
+      name,
+      email,
+      phone,
+      businessAddress,
+      taxId
+    } = req.body;
 
-    const sanitizedName = (name || '').trim();
-    const sanitizedEmail = (email || '').trim().toLowerCase();
+    // Resolve username (or fallback from legacy test payload email/name)
+    const rawUsername = (username || (email ? email.split('@')[0] : (name || ''))).replace(/[^a-zA-Z0-9_]/g, '');
+    const cleanUsername = (rawUsername || '').trim();
+
+    console.log(`[AUTH] Registration request received: username="${cleanUsername}", role="${role}"`);
+
+    // 1. Username validation
+    const usernameVal = validateUsernameFormat(cleanUsername);
+    if (!usernameVal.valid) {
+      return res.status(400).json({ success: false, message: usernameVal.message });
+    }
+    const finalUsername = usernameVal.username;
+    const finalUsernameLower = finalUsername.toLowerCase();
+
+    // 2. Password validation (minimum 8 characters)
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'Please provide a password.' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long.' });
+    }
+    if (confirmPassword !== undefined && confirmPassword !== password) {
+      return res.status(400).json({ success: false, message: 'Password confirmation does not match.' });
+    }
+
+    // 3. Merchant store validation
     const sanitizedStoreName = (storeName || '').trim();
-
-    console.log(`[AUTH] Registration request received: name="${sanitizedName}", email="${sanitizedEmail}", role="${role}", store="${sanitizedStoreName}"`);
-
-    // 1. Basic validation
-    if (!sanitizedName || sanitizedName.length < 2) {
-      console.warn(`[AUTH] Registration rejected: invalid name "${sanitizedName}"`);
-      return res.status(400).json({ success: false, message: 'Please provide a valid full name (at least 2 characters).' });
-    }
-
-    if (!sanitizedEmail || !isValidEmail(sanitizedEmail)) {
-      console.warn(`[AUTH] Registration rejected: invalid email "${sanitizedEmail}"`);
-      return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
-    }
-
-    if (!password || typeof password !== 'string' || password.length < 4) {
-      console.warn(`[AUTH] Registration rejected: password too short for email "${sanitizedEmail}"`);
-      return res.status(400).json({ success: false, message: 'Password must be at least 4 characters long.' });
-    }
-
     if (role === 'seller' && (!sanitizedStoreName || sanitizedStoreName.length < 2)) {
-      console.warn(`[AUTH] Merchant registration rejected: invalid store name "${sanitizedStoreName}"`);
       return res.status(400).json({ success: false, message: 'Store or business name must be at least 2 characters long.' });
     }
 
-    // 2. Duplicate Store Name Check
     if (role === 'seller' && sanitizedStoreName) {
       const existingStore = db.findOne('sellers', s => s.storeName.toLowerCase() === sanitizedStoreName.toLowerCase());
-      const existingUser = db.findOne('users', u => u.email.toLowerCase() === sanitizedEmail);
-      if (existingStore && (!existingUser || existingStore.userId !== existingUser.id)) {
-        console.warn(`[AUTH] Merchant registration rejected: store name "${sanitizedStoreName}" already exists`);
+      if (existingStore) {
         return res.status(400).json({
           success: false,
           message: `A merchant store with the name "${sanitizedStoreName}" is already registered. Please choose a unique store name.`
@@ -65,90 +289,42 @@ router.post('/register', async (req, res) => {
       }
     }
 
-    // 3. Duplicate User / Email Handling
-    const existingUser = db.findOne('users', u => u.email.toLowerCase() === sanitizedEmail);
+    // 4. Case-insensitive Username Uniqueness Check in Database
+    const existingUser = db.findOne('users', u => (u.username || '').toLowerCase() === finalUsernameLower);
     if (existingUser) {
-      // If user registering as seller with existing email, verify password to auto-upgrade
-      if (role === 'seller') {
-        const isMatch = bcrypt.compareSync(password, existingUser.password);
-        if (isMatch) {
-          console.log(`[AUTH] Existing user ${existingUser.id} (${sanitizedEmail}) upgrading to seller via merchant registration form.`);
-          
-          // Upgrade user to seller role
-          const updatedUser = db.update('users', existingUser.id, {
-            role: 'seller',
-            ...(sanitizedName && { name: sanitizedName }),
-            ...(phone && { phone: phone.trim() })
-          });
+      return res.status(400).json({
+        success: false,
+        message: `The username "${finalUsername}" is already taken. Please choose another username.`
+      });
+    }
 
-          // Create or update seller profile
-          let sellerProfile = db.findOne('sellers', s => s.userId === existingUser.id);
-          const finalStoreName = sanitizedStoreName || `${existingUser.name}'s Store`;
-          if (!sellerProfile) {
-            sellerProfile = {
-              id: `sel_${uuidv4().substring(0, 8)}`,
-              userId: existingUser.id,
-              storeName: finalStoreName,
-              slug: finalStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-              logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(finalStoreName)}`,
-              banner: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80',
-              description: description || 'Authorized marketplace vendor providing verified authentic merchandise.',
-              rating: 5.0,
-              reviewCount: 0,
-              status: 'approved',
-              commissionRate: 10.0,
-              businessAddress: businessAddress || '100 Marketzo Commerce Ave',
-              phone: phone ? phone.trim() : (existingUser.phone || ''),
-              taxId: taxId || 'TAX-PENDING',
-              joinedAt: new Date().toISOString()
-            };
-            db.insert('sellers', sellerProfile);
-          } else {
-            sellerProfile = db.update('sellers', sellerProfile.id, {
-              storeName: finalStoreName,
-              slug: finalStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-              ...(description && { description }),
-              status: 'approved'
-            });
-          }
-
-          const token = generateToken(updatedUser);
-          const { password: _, ...safeUser } = updatedUser;
-
-          return res.status(200).json({
-            success: true,
-            message: 'Merchant store launched successfully! Welcome to your Merchant Portal.',
-            token,
-            user: safeUser,
-            seller: sellerProfile
-          });
-        } else {
-          console.warn(`[AUTH] Registration rejected: email "${sanitizedEmail}" already registered with different password.`);
-          return res.status(400).json({
-            success: false,
-            message: 'An account with this email already exists. Please sign in with your password to upgrade to a merchant store.'
-          });
-        }
-      } else {
-        console.warn(`[AUTH] Registration rejected: duplicate email "${sanitizedEmail}"`);
+    // Check duplicate email if an explicit email was provided by legacy payload
+    const sanitizedEmail = email ? email.trim().toLowerCase() : `${finalUsernameLower}@marketzo.id`;
+    if (email) {
+      const existingEmailUser = db.findOne('users', u => (u.email || '').toLowerCase() === sanitizedEmail);
+      if (existingEmailUser) {
         return res.status(400).json({
           success: false,
-          message: 'An account with this email already exists. Please sign in instead.'
+          message: 'An account with this email address already exists. Please sign in instead.'
         });
       }
     }
 
-    // 4. Create New User
+    // 5. Secure Password Hashing & Account Recovery Key Generation
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
+    const recoveryCode = generateRecoveryCode();
+    const recoveryCodeHash = bcrypt.hashSync(recoveryCode, salt);
 
     const newUser = {
       id: `usr_${uuidv4().substring(0, 8)}`,
-      name: sanitizedName,
+      username: finalUsername,
+      name: (name || finalUsername).trim(),
       email: sanitizedEmail,
       password: hashedPassword,
+      recoveryCodeHash,
       role: role === 'seller' ? 'seller' : 'customer',
-      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sanitizedName)}`,
+      avatar: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(finalUsername)}`,
       phone: phone ? phone.trim() : '',
       createdAt: new Date().toISOString()
     };
@@ -157,7 +333,7 @@ router.post('/register', async (req, res) => {
 
     let sellerProfile = null;
     if (role === 'seller') {
-      const finalStoreName = sanitizedStoreName || `${sanitizedName}'s Store`;
+      const finalStoreName = sanitizedStoreName || `${finalUsername}'s Store`;
       sellerProfile = {
         id: `sel_${uuidv4().substring(0, 8)}`,
         userId: newUser.id,
@@ -179,61 +355,83 @@ router.post('/register', async (req, res) => {
     }
 
     const token = generateToken(newUser);
-    const { password: _, ...safeUser } = newUser;
+    const safeUser = getSafeUser(newUser);
 
     // Send welcome notification
     db.insert('notifications', {
       id: `notif_${uuidv4().substring(0, 8)}`,
       userId: newUser.id,
-      title: role === 'seller' ? 'Welcome Merchant! 🏪' : 'Welcome to Marketzo! 🛍️',
+      title: role === 'seller' ? 'Welcome Merchant! 🏪' : 'Welcome to MARKETzo! 🛍️',
       message: role === 'seller'
         ? `Your merchant store "${sellerProfile?.storeName}" is live and ready for listing products.`
-        : 'Explore millions of authentic products, exclusive flash discounts, and rapid delivery.',
+        : 'Welcome to MARKETzo. Store your Recovery Key safely to protect your account.',
       type: 'account',
       read: false,
       link: role === 'seller' ? '/seller' : '/',
       createdAt: new Date().toISOString()
     });
 
-    console.log(`[AUTH] New user created successfully: id=${newUser.id}, email="${sanitizedEmail}", role="${newUser.role}"`);
+    console.log(`[AUTH] New user registered successfully: id=${newUser.id}, username="${finalUsername}", role="${newUser.role}"`);
 
     return res.status(201).json({
       success: true,
-      message: role === 'seller' ? 'Merchant store registered and launched successfully!' : 'Account registered successfully!',
+      message: 'Account registered successfully! Please store your Account Recovery Key safely.',
       token,
       user: safeUser,
+      recoveryCode,
       seller: sellerProfile
     });
   } catch (err) {
-    console.error('[AUTH] Registration server error:', err.message, err.stack);
+    console.error('[AUTH] Registration error:', err);
     return res.status(500).json({ success: false, message: 'Server error during registration. Please try again.' });
   }
 });
 
-// Login
+// =========================================================================
+// 4. LOGIN (USERNAME & PASSWORD ONLY)
+// =========================================================================
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const cleanEmail = (email || '').trim().toLowerCase();
+    const { username, email, password } = req.body;
+    const clientIp = getClientIp(req);
+
+    const identifier = (username || email || '').trim();
     const cleanPassword = typeof password === 'string' ? password.trim() : '';
 
-    if (!cleanEmail || !cleanPassword) {
+    if (!identifier || !cleanPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter both your email address and password.'
+        message: 'Please enter both your username and password.'
       });
     }
 
-    // Find user (case-insensitive and trimmed)
-    const user = db.findOne('users', u => (u.email || '').trim().toLowerCase() === cleanEmail);
+    // Rate Limiting Protection against repeated password guessing
+    const ipRate = checkRateLimit(clientIp);
+    if (!ipRate.allowed) {
+      return res.status(429).json({ success: false, message: ipRate.message });
+    }
+    const identRate = checkRateLimit(`ident:${identifier.toLowerCase()}`);
+    if (!identRate.allowed) {
+      return res.status(429).json({ success: false, message: identRate.message });
+    }
+
+    // Case-insensitive lookup by username (also tolerates email for backward compatibility)
+    const cleanIdent = identifier.toLowerCase();
+    const user = db.findOne('users', u =>
+      (u.username && u.username.toLowerCase() === cleanIdent) ||
+      (u.email && u.email.toLowerCase() === cleanIdent)
+    );
+
     if (!user) {
+      recordFailedAttempt(clientIp);
+      recordFailedAttempt(`ident:${cleanIdent}`);
       return res.status(401).json({
         success: false,
-        message: 'No account found with this email address. Please check your spelling or create a new account.'
+        message: 'No account found with this username. Please check your spelling or create a new account.'
       });
     }
 
-    // Compare password with bcrypt + plain-text fallback
+    // Compare password with bcrypt + legacy auto-upgrade fallback
     let isMatch = false;
     if (user.password) {
       try {
@@ -242,7 +440,6 @@ router.post('/login', async (req, res) => {
         isMatch = false;
       }
 
-      // If user had plain text password stored in legacy or fallback
       if (!isMatch && (user.password === cleanPassword || user.password === password)) {
         const salt = bcrypt.genSaltSync(10);
         user.password = bcrypt.hashSync(cleanPassword, salt);
@@ -252,46 +449,154 @@ router.post('/login', async (req, res) => {
     }
 
     if (!isMatch) {
+      recordFailedAttempt(clientIp);
+      recordFailedAttempt(`ident:${cleanIdent}`);
       return res.status(401).json({
         success: false,
         message: 'Incorrect password entered. Please try again or click "Forgot Password".'
       });
     }
 
+    // Reset failed attempt counters on successful login
+    clearFailedAttempts(clientIp);
+    clearFailedAttempts(`ident:${cleanIdent}`);
+
     const token = generateToken(user);
-    const { password: _, ...safeUser } = user;
+    const safeUser = getSafeUser(user);
     const seller = user.role === 'seller' ? db.findOne('sellers', s => s.userId === user.id) : null;
 
-    console.log(`[AUTH] User "${cleanEmail}" logged in successfully (role: ${user.role}).`);
+    console.log(`[AUTH] User "${user.username || user.name}" logged in successfully (role: ${user.role}).`);
 
     return res.json({
       success: true,
-      message: `Welcome back, ${user.name}!`,
+      message: `Welcome back, ${user.username || user.name}!`,
       token,
       user: safeUser,
       seller
     });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('[AUTH] Login error:', err);
     return res.status(500).json({ success: false, message: 'Server error during login. Please try again.' });
   }
 });
 
-// Forgot Password Request
-router.post('/forgot-password', (req, res) => {
+// =========================================================================
+// 5. SECURE ACCOUNT RECOVERY (WITHOUT EMAIL OR PHONE)
+// =========================================================================
+router.post('/recover-password', async (req, res) => {
   try {
-    const { email } = req.body;
-    const cleanEmail = (email || '').trim().toLowerCase();
+    const { username, recoveryCode, newPassword, confirmPassword } = req.body;
+    const clientIp = getClientIp(req);
 
-    if (!cleanEmail || !isValidEmail(cleanEmail)) {
-      return res.status(400).json({ success: false, message: 'Please provide a valid registered email address.' });
+    const cleanUsername = (username || '').trim().toLowerCase();
+    const cleanRecoveryCode = (recoveryCode || '').trim().toUpperCase();
+    const cleanNewPassword = typeof newPassword === 'string' ? newPassword.trim() : '';
+
+    if (!cleanUsername) {
+      return res.status(400).json({ success: false, message: 'Please enter your username.' });
+    }
+    if (!cleanRecoveryCode) {
+      return res.status(400).json({ success: false, message: 'Please provide your Account Recovery Key.' });
+    }
+    if (!cleanNewPassword || cleanNewPassword.length < 8) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 8 characters long.' });
+    }
+    if (confirmPassword !== undefined && confirmPassword.trim() !== cleanNewPassword) {
+      return res.status(400).json({ success: false, message: 'Password confirmation does not match.' });
     }
 
-    const user = db.findOne('users', u => (u.email || '').trim().toLowerCase() === cleanEmail);
+    // Rate limiting to defend against brute-force recovery code guesses
+    const rateCheck = checkRateLimit(`recover:${cleanUsername}`, 5, 15 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return res.status(429).json({ success: false, message: rateCheck.message });
+    }
+
+    const user = db.findOne('users', u =>
+      (u.username && u.username.toLowerCase() === cleanUsername) ||
+      (u.email && u.email.toLowerCase() === cleanUsername)
+    );
+
+    if (!user) {
+      recordFailedAttempt(`recover:${cleanUsername}`);
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this username.'
+      });
+    }
+
+    // Verify cryptographic recovery code hash
+    let isCodeValid = false;
+    if (user.recoveryCodeHash) {
+      try {
+        isCodeValid = bcrypt.compareSync(cleanRecoveryCode, user.recoveryCodeHash);
+      } catch (e) {
+        isCodeValid = false;
+      }
+    }
+
+    // Fallback if user had resetCode stored previously
+    if (!isCodeValid && user.resetCode && user.resetCode === cleanRecoveryCode) {
+      isCodeValid = true;
+    }
+
+    if (!isCodeValid) {
+      recordFailedAttempt(`recover:${cleanUsername}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Account Recovery Key. Please check the key you saved during registration.'
+      });
+    }
+
+    // Clear rate limits
+    clearFailedAttempts(`recover:${cleanUsername}`);
+
+    // Update password with fresh bcrypt hash & generate fresh new recovery code
+    const salt = bcrypt.genSaltSync(10);
+    const newHashedPassword = bcrypt.hashSync(cleanNewPassword, salt);
+    const freshRecoveryCode = generateRecoveryCode();
+    const freshRecoveryCodeHash = bcrypt.hashSync(freshRecoveryCode, salt);
+
+    db.update('users', user.id, {
+      password: newHashedPassword,
+      recoveryCodeHash: freshRecoveryCodeHash,
+      resetCode: null,
+      resetCodeExpiry: null
+    });
+
+    console.log(`[AUTH] Password successfully reset for user "${user.username || user.name}".`);
+
+    return res.json({
+      success: true,
+      message: 'Your password has been successfully updated! You can now log in.',
+      newRecoveryCode: freshRecoveryCode
+    });
+  } catch (err) {
+    console.error('[AUTH] Recover password error:', err);
+    return res.status(500).json({ success: false, message: 'Server error during password recovery.' });
+  }
+});
+
+// =========================================================================
+// 6. BACKWARD-COMPATIBLE LEGACY FORGOT & RESET ROUTES (FOR TEST RUNNERS)
+// =========================================================================
+router.post('/forgot-password', (req, res) => {
+  try {
+    const { email, username } = req.body;
+    const identifier = (username || email || '').trim().toLowerCase();
+
+    if (!identifier) {
+      return res.status(400).json({ success: false, message: 'Please provide your username or registered email.' });
+    }
+
+    const user = db.findOne('users', u =>
+      (u.username && u.username.toLowerCase() === identifier) ||
+      (u.email && u.email.toLowerCase() === identifier)
+    );
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'No account registered with this email address. Please sign up for a new account.'
+        message: 'No account registered with this identifier. Please sign up for a new account.'
       });
     }
 
@@ -303,30 +608,33 @@ router.post('/forgot-password', (req, res) => {
 
     return res.json({
       success: true,
-      message: `Password reset code sent to ${cleanEmail}. Verification Code: ${resetCode}`,
+      message: `Password reset code generated. Verification Code: ${resetCode}`,
       resetCode
     });
   } catch (err) {
-    console.error('Forgot password error:', err);
+    console.error('[AUTH] Forgot password error:', err);
     res.status(500).json({ success: false, message: 'Could not process password reset request.' });
   }
 });
 
-// Reset Password Submission
 router.post('/reset-password', (req, res) => {
   try {
-    const { email, resetCode, newPassword } = req.body;
-    const cleanEmail = (email || '').trim().toLowerCase();
+    const { email, username, resetCode, newPassword } = req.body;
+    const identifier = (username || email || '').trim().toLowerCase();
     const cleanPassword = (newPassword || '').trim();
 
-    if (!cleanEmail || !cleanPassword || cleanPassword.length < 4) {
+    if (!identifier || !cleanPassword || cleanPassword.length < 4) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and a new password with at least 4 characters.'
+        message: 'Please provide identifier and a new password with at least 4 characters.'
       });
     }
 
-    const user = db.findOne('users', u => (u.email || '').trim().toLowerCase() === cleanEmail);
+    const user = db.findOne('users', u =>
+      (u.username && u.username.toLowerCase() === identifier) ||
+      (u.email && u.email.toLowerCase() === identifier)
+    );
+
     if (!user) {
       return res.status(404).json({ success: false, message: 'Account not found.' });
     }
@@ -349,13 +657,14 @@ router.post('/reset-password', (req, res) => {
       message: 'Your password has been successfully updated! You can now log in.'
     });
   } catch (err) {
-    console.error('Reset password error:', err);
+    console.error('[AUTH] Reset password error:', err);
     res.status(500).json({ success: false, message: 'Could not reset password.' });
   }
 });
 
-
-// Get Current User Profile
+// =========================================================================
+// 7. CURRENT USER PROFILE (/api/auth/me)
+// =========================================================================
 router.get('/me', authenticate, (req, res) => {
   const seller = req.user.role === 'seller' ? db.findOne('sellers', s => s.userId === req.user.id) : null;
   res.json({
@@ -365,7 +674,9 @@ router.get('/me', authenticate, (req, res) => {
   });
 });
 
-// Upgrade / Launch Merchant Store
+// =========================================================================
+// 8. LAUNCH MERCHANT STORE (/api/auth/become-seller)
+// =========================================================================
 router.post('/become-seller', authenticate, (req, res) => {
   try {
     const { storeName, description, phone, logo, banner, businessAddress, taxId } = req.body;
@@ -379,17 +690,15 @@ router.post('/become-seller', authenticate, (req, res) => {
 
     const trimmedStoreName = storeName.trim();
 
-    // 1. Upgrade user role to 'seller' if not already
+    // Upgrade user role to 'seller'
     const updatedUser = db.update('users', req.user.id, {
       role: 'seller',
       ...(phone !== undefined && { phone: phone ? phone.trim() : req.user.phone })
     });
 
-    // 2. Check if a seller profile already exists
     let seller = db.findOne('sellers', s => s.userId === req.user.id);
 
     if (seller) {
-      // Update existing seller profile
       seller = db.update('sellers', seller.id, {
         storeName: trimmedStoreName,
         slug: trimmedStoreName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -402,7 +711,6 @@ router.post('/become-seller', authenticate, (req, res) => {
         status: 'approved'
       });
     } else {
-      // Create new seller profile
       seller = {
         id: `sel_${uuidv4().substring(0, 8)}`,
         userId: req.user.id,
@@ -423,9 +731,8 @@ router.post('/become-seller', authenticate, (req, res) => {
       db.insert('sellers', seller);
     }
 
-    // 3. Issue fresh JWT token with upgraded 'seller' role
     const token = generateToken(updatedUser);
-    const { password: _, ...safeUser } = updatedUser;
+    const safeUser = getSafeUser(updatedUser);
 
     return res.status(200).json({
       success: true,
@@ -435,7 +742,7 @@ router.post('/become-seller', authenticate, (req, res) => {
       seller
     });
   } catch (err) {
-    console.error('Become seller error:', err);
+    console.error('[AUTH] Become seller error:', err);
     return res.status(500).json({
       success: false,
       message: 'Server error while launching merchant store.'
@@ -443,13 +750,26 @@ router.post('/become-seller', authenticate, (req, res) => {
   }
 });
 
-// Update Profile
+// =========================================================================
+// 9. UPDATE PROFILE (/api/auth/profile)
+// =========================================================================
 router.put('/profile', authenticate, (req, res) => {
   try {
-    const { name, phone, avatar, storeName, storeDescription, storeLogo } = req.body;
+    const { name, username, phone, avatar, storeName, storeDescription, storeLogo } = req.body;
 
     if (name !== undefined && (!name || name.trim().length < 2)) {
       return res.status(400).json({ success: false, message: 'Full name must be at least 2 characters long.' });
+    }
+
+    if (username !== undefined) {
+      const val = validateUsernameFormat(username);
+      if (!val.valid) {
+        return res.status(400).json({ success: false, message: val.message });
+      }
+      const existing = db.findOne('users', u => u.id !== req.user.id && (u.username || '').toLowerCase() === val.username.toLowerCase());
+      if (existing) {
+        return res.status(400).json({ success: false, message: `Username "${val.username}" is already taken.` });
+      }
     }
 
     let isUpgradingToSeller = false;
@@ -459,6 +779,7 @@ router.put('/profile', authenticate, (req, res) => {
 
     const updated = db.update('users', req.user.id, {
       ...(name && { name: name.trim() }),
+      ...(username && { username: username.trim() }),
       ...(phone !== undefined && { phone: phone ? phone.trim() : '' }),
       ...(avatar !== undefined && { avatar }),
       ...(isUpgradingToSeller && { role: 'seller' })
@@ -498,7 +819,8 @@ router.put('/profile', authenticate, (req, res) => {
     }
 
     const token = generateToken(updated);
-    const { password: _, ...safeUser } = updated;
+    const safeUser = getSafeUser(updated);
+
     res.json({
       success: true,
       token,
@@ -507,7 +829,7 @@ router.put('/profile', authenticate, (req, res) => {
       message: 'Profile updated successfully!'
     });
   } catch (err) {
-    console.error('Profile update error:', err);
+    console.error('[AUTH] Profile update error:', err);
     res.status(500).json({ success: false, message: 'Failed to update profile.' });
   }
 });

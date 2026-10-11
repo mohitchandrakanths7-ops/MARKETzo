@@ -2,22 +2,28 @@ const bcrypt = require('bcryptjs');
 
 const salt = bcrypt.genSaltSync(10);
 const defaultHashedPassword = bcrypt.hashSync('password123', salt);
+const defaultRecoveryCode = 'MZ-RECO-VERY-2026';
+const defaultRecoveryCodeHash = bcrypt.hashSync(defaultRecoveryCode, salt);
 
 const seedUsers = [
   {
     id: 'usr_admin_01',
+    username: 'admin',
     name: 'Marketzo Admin',
     email: 'admin@marketzo.com',
     password: defaultHashedPassword,
+    recoveryCodeHash: defaultRecoveryCodeHash,
     role: 'admin',
     avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Admin',
     createdAt: '2026-01-01T00:00:00.000Z'
   },
   {
     id: 'usr_seller_01',
+    username: 'seller',
     name: 'Acoustic Sound Labs',
     email: 'seller@marketzo.com',
     password: defaultHashedPassword,
+    recoveryCodeHash: defaultRecoveryCodeHash,
     role: 'seller',
     phone: '+91 9876543210',
     avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Acoustics',
@@ -25,9 +31,11 @@ const seedUsers = [
   },
   {
     id: 'usr_seller_02',
+    username: 'urban',
     name: 'Urban Atelier Store',
     email: 'urban@marketzo.com',
     password: defaultHashedPassword,
+    recoveryCodeHash: defaultRecoveryCodeHash,
     role: 'seller',
     phone: '+91 9876543211',
     avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Urban',
@@ -35,9 +43,11 @@ const seedUsers = [
   },
   {
     id: 'usr_customer_01',
+    username: 'shopper',
     name: 'David Miller',
     email: 'shopper@marketzo.com',
     password: defaultHashedPassword,
+    recoveryCodeHash: defaultRecoveryCodeHash,
     role: 'customer',
     phone: '+91 9876543212',
     avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=David',

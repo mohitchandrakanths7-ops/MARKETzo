@@ -17,7 +17,7 @@ const authenticate = (req, res, next) => {
       return res.status(401).json({ success: false, message: 'User session is invalid or user no longer exists.' });
     }
 
-    const { password, ...safeUser } = user;
+    const { password, recoveryCodeHash, resetCode, resetCodeExpiry, ...safeUser } = user;
     req.user = safeUser;
     
     // Attach seller profile if user is a seller
@@ -44,7 +44,7 @@ const optionalAuth = (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = db.findById('users', decoded.id);
     if (user) {
-      const { password, ...safeUser } = user;
+      const { password, recoveryCodeHash, resetCode, resetCodeExpiry, ...safeUser } = user;
       req.user = safeUser;
       if (user.role === 'seller') {
         req.seller = db.findOne('sellers', s => s.userId === user.id);
