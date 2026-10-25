@@ -32,10 +32,10 @@ export const DesktopTrustStrip = () => {
 
   return (
     <div
-      className="rounded-2xl p-4 border"
+      className="rounded-2xl p-4 border shadow-xl"
       style={{
-        background: '#101522',
-        borderColor: 'rgba(255,255,255,0.07)'
+        background: '#0B1427',
+        borderColor: 'rgba(100, 149, 237, 0.22)'
       }}
     >
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 divide-y lg:divide-y-0 lg:divide-x divide-white/5">

@@ -248,19 +248,19 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
   const images = product.images?.length > 0 ? product.images : [product.image || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&auto=format&fit=crop&q=80'];
 
   return (
-    <div className="min-h-screen bg-[#080c14] md:bg-[#f8fafc] text-white md:text-slate-900 pb-32 md:pb-16 transition-colors">
+    <div className="min-h-screen bg-[#030712] text-[#F8FAFC] pb-32 md:pb-16 transition-colors">
       
       {/* ========================================================
           MOBILE TOP APP BAR: ← Back | Title | ♡ | 🛒 (Mobile Only)
           ======================================================== */}
-      <div className="md:hidden sticky top-0 z-40 bg-[#080c14]/95 backdrop-blur-xl border-b border-white/10 px-3.5 py-2.5 flex items-center justify-between shadow-md">
+      <div className="md:hidden sticky top-0 z-40 bg-[#081225]/95 backdrop-blur-xl border-b border-[rgba(100,149,237,0.22)] px-3.5 py-2.5 flex items-center justify-between shadow-md">
         <button
           type="button"
           onClick={() => onNavigate('home')}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#111827] text-slate-300 hover:text-white border border-white/10 cursor-pointer press-feedback text-xs font-bold"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0B1427] text-slate-300 hover:text-white border border-[rgba(100,149,237,0.22)] cursor-pointer press-feedback text-xs font-bold"
           aria-label="Back to previous page"
         >
-          <ArrowLeft className="w-4 h-4 text-blue-400" />
+          <ArrowLeft className="w-4 h-4 text-[#00C8FF]" />
           <span>Back</span>
         </button>
 
@@ -276,7 +276,7 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
             className={`p-2 rounded-xl border transition-all cursor-pointer press-feedback ${
               isLiked 
                 ? 'bg-rose-950/80 border-rose-600 text-rose-400' 
-                : 'bg-[#111827] border-white/10 text-slate-300 hover:text-rose-400'
+                : 'bg-[#0B1427] border-[rgba(100,149,237,0.22)] text-slate-300 hover:text-rose-400'
             }`}
             title={isLiked ? 'Remove from wishlist' : 'Save to wishlist'}
             aria-label="Wishlist"
@@ -288,14 +288,13 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
           <button
             type="button"
             onClick={() => onNavigate('cart')}
-            className="relative p-2 rounded-xl bg-[#111827] border border-white/10 text-blue-400 cursor-pointer press-feedback"
+            className="relative p-2 rounded-xl bg-[#0B1427] border border-[rgba(100,149,237,0.22)] text-[#00C8FF] cursor-pointer press-feedback"
             aria-label="Cart"
           >
             <ShoppingCart className="w-4 h-4" />
             {itemCount > 0 && (
               <span
-                className="absolute -top-1 -right-1 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-md"
-                style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
+                className="absolute -top-1 -right-1 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-md bg-gradient-to-r from-[#2583FF] to-[#702EFF]"
               >
                 {itemCount > 9 ? '9+' : itemCount}
               </span>
@@ -308,16 +307,16 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
         
         {/* Breadcrumbs (Desktop) */}
         <div className="hidden md:flex text-xs font-semibold text-slate-400 items-center gap-1.5 overflow-x-auto whitespace-nowrap pb-1 no-scrollbar">
-          <span onClick={() => onNavigate('home')} className="hover:text-indigo-600 cursor-pointer">Home</span>
+          <span onClick={() => onNavigate('home')} className="hover:text-[#00C8FF] cursor-pointer">Home</span>
           <span>/</span>
           <span 
             onClick={() => onNavigate('products', { category: product.categorySlug || product.categoryId || (typeof product.category === 'object' ? product.category?.slug : product.category) })} 
-            className="hover:text-indigo-600 cursor-pointer font-bold text-slate-700"
+            className="hover:text-[#00C8FF] cursor-pointer font-bold text-slate-300"
           >
             {product.categoryName || (typeof product.category === 'object' ? product.category?.name : product.category) || 'Department'}
           </span>
           <span>/</span>
-          <span className="text-indigo-600 font-bold truncate max-w-xs">{product.name}</span>
+          <span className="text-[#2583FF] font-bold truncate max-w-xs">{product.name}</span>
         </div>
 
         {/* Main Product View: Gallery + Details */}
@@ -333,7 +332,7 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={() => onTouchEnd(images.length)}
-              className="relative aspect-square w-full rounded-3xl overflow-hidden bg-[#0a0f1d] md:bg-white border border-white/10 md:border-slate-200/90 shadow-xl group select-none flex items-center justify-center p-3"
+              className="relative aspect-square w-full rounded-3xl overflow-hidden bg-white border border-[rgba(100,149,237,0.22)] shadow-2xl group select-none flex items-center justify-center p-6"
             >
               <img
                 src={images[activeImage]}
@@ -342,18 +341,18 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&auto=format&fit=crop&q=80';
                 }}
-                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
               />
 
               {/* Badges */}
               <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
                 {discountPercent > 0 && (
-                  <span className="bg-rose-600 text-white font-black text-xs px-2.5 py-1 rounded-xl shadow-md uppercase tracking-wider">
+                  <span className="bg-[#FF8A00] text-slate-950 font-black text-xs px-2.5 py-1 rounded-xl shadow-md uppercase tracking-wider">
                     {discountPercent}% OFF
                   </span>
                 )}
                 {product.isBestSeller && (
-                  <span className="bg-amber-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-lg shadow-md uppercase tracking-wider">
+                  <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-lg shadow-md uppercase tracking-wider">
                     BESTSELLER
                   </span>
                 )}
@@ -364,7 +363,7 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                 <button
                   type="button"
                   onClick={() => setIsShareOpen(true)}
-                  className="p-2.5 rounded-2xl bg-[#111827]/80 md:bg-white/90 text-slate-300 md:text-slate-600 hover:text-blue-400 border border-white/10 md:border-slate-200/80 shadow-md transition-all cursor-pointer press-feedback"
+                  className="p-2.5 rounded-2xl bg-[#0B1427]/90 text-slate-300 hover:text-[#00C8FF] border border-[rgba(100,149,237,0.3)] shadow-md transition-all cursor-pointer press-feedback"
                   title="Share Product"
                 >
                   <Share2 className="w-4 h-4" />
@@ -419,8 +418,8 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                     key={i}
                     type="button"
                     onClick={() => setActiveImage(i)}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 bg-[#0a0f1d] md:bg-white p-1 cursor-pointer press-feedback ${
-                      activeImage === i ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-white/10 md:border-slate-200/80 opacity-60 hover:opacity-100'
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 bg-white p-1 cursor-pointer press-feedback ${
+                      activeImage === i ? 'border-[#2583FF] ring-2 ring-[#2583FF]/30' : 'border-[rgba(100,149,237,0.22)] opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img
@@ -441,39 +440,39 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
           <div className="lg:col-span-6 space-y-4 sm:space-y-6">
             
             {/* Title & Ratings */}
-            <div className="p-4 sm:p-5 bg-[#111827] md:bg-white rounded-3xl border border-white/10 md:border-slate-200/90 shadow-md space-y-3">
+            <div className="p-4 sm:p-5 bg-[#0B1427] rounded-3xl border border-[rgba(100,149,237,0.22)] shadow-xl space-y-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-extrabold text-blue-400 uppercase tracking-wider">
+                <span className="text-[11px] font-extrabold text-[#00C8FF] uppercase tracking-wider">
                   {product.categoryName || 'Marketplace'}
                 </span>
-                <span className="text-xs text-emerald-400 md:text-emerald-600 font-bold flex items-center gap-1">
+                <span className="text-xs text-[#22C55E] font-bold flex items-center gap-1">
                   <Check className="w-3.5 h-3.5" /> In Stock
                 </span>
               </div>
 
               {/* Product Name (Large readable typography) */}
-              <h1 className="text-base sm:text-xl font-black text-white md:text-slate-900 leading-snug tracking-tight">
+              <h1 className="text-base sm:text-xl font-black text-white leading-snug tracking-tight">
                 {product.name}
               </h1>
 
               {/* Rating & Reviews Row */}
               <div className="flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1 bg-[#1a233a] md:bg-amber-50 border border-white/10 md:border-amber-200 text-amber-300 md:text-amber-800 px-2 py-0.5 rounded-lg font-bold">
+                <div className="flex items-center gap-1 bg-[#101B32] border border-[rgba(100,149,237,0.2)] text-amber-300 px-2 py-0.5 rounded-lg font-bold">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   <span>{product.rating?.toFixed(1) || '4.6'}</span>
                 </div>
-                <span className="text-slate-400 md:text-slate-500 font-medium">
+                <span className="text-slate-400 font-medium">
                   | {product.reviewCount || 124} Customer Reviews
                 </span>
               </div>
 
               {/* Pricing Section */}
-              <div className="pt-3 border-t border-white/10 md:border-slate-100 flex items-baseline gap-2.5">
-                <span className="text-2xl sm:text-3xl font-black text-white md:text-slate-900">
+              <div className="pt-3 border-t border-[rgba(100,149,237,0.15)] flex items-baseline gap-2.5">
+                <span className="text-2xl sm:text-3xl font-black text-white">
                   {formatPrice(currentPrice)}
                 </span>
                 {originalPrice > currentPrice && (
-                  <span className="text-sm text-slate-500 md:text-slate-400 line-through">
+                  <span className="text-sm text-slate-400 line-through">
                     {formatPrice(originalPrice)}
                   </span>
                 )}
@@ -485,9 +484,9 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
               </div>
 
               {/* Delivery Speed / Pincode check */}
-              <div className="p-3 bg-[#0a0f1d] md:bg-slate-50 rounded-2xl border border-white/5 md:border-slate-100 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs text-slate-300 md:text-slate-700">
-                  <Truck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="p-3 bg-[#101B32] rounded-2xl border border-[rgba(100,149,237,0.15)] flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <Truck className="w-4 h-4 text-[#22C55E] shrink-0" />
                   <span>🚚 Express 2-Day Delivery to <strong>{pincode || 'your area'}</strong></span>
                 </div>
                 <button
@@ -499,7 +498,7 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                       localStorage.setItem('marketzo_pincode', code);
                     }
                   }}
-                  className="text-xs font-bold text-blue-400 hover:text-blue-300 cursor-pointer shrink-0"
+                  className="text-xs font-bold text-[#00C8FF] hover:underline cursor-pointer shrink-0"
                 >
                   Change
                 </button>
@@ -510,26 +509,26 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                 VERIFIED SELLER INFORMATION & DIRECT CONTACT (WhatsApp / Call)
                 ======================================================== */}
             {product.seller && (
-              <div className="p-4 sm:p-5 bg-[#111827] md:bg-white rounded-3xl border border-white/10 md:border-slate-200/90 shadow-md space-y-3">
+              <div className="p-4 sm:p-5 bg-[#0B1427] rounded-3xl border border-[rgba(100,149,237,0.22)] shadow-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-2xl bg-[#0a0f1d] md:bg-slate-100 flex items-center justify-center text-blue-400 border border-white/10 md:border-slate-200">
+                    <div className="w-10 h-10 rounded-2xl bg-[#101B32] flex items-center justify-center text-[#00C8FF] border border-[rgba(100,149,237,0.2)]">
                       <Store className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-400">Sold by</div>
-                      <div className="text-sm font-black text-white md:text-slate-900">{product.seller.storeName || 'Verified Merchant'}</div>
+                      <div className="text-sm font-black text-white">{product.seller.storeName || 'Verified Merchant'}</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 bg-[#1a233a] md:bg-amber-50 px-2 py-1 rounded-lg border border-white/10 md:border-amber-200">
+                  <div className="flex items-center gap-1 bg-[#101B32] px-2 py-1 rounded-lg border border-[rgba(100,149,237,0.2)]">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span className="text-xs font-bold text-amber-300 md:text-amber-800">{product.seller.rating?.toFixed(1) || '4.9'}</span>
+                    <span className="text-xs font-bold text-amber-300">{product.seller.rating?.toFixed(1) || '4.9'}</span>
                   </div>
                 </div>
 
                 {/* Direct WhatsApp & Call Buttons */}
-                <div className="pt-2 border-t border-white/5 md:border-slate-100 space-y-2">
+                <div className="pt-2 border-t border-[rgba(100,149,237,0.15)] space-y-2">
                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
                     Contact Seller Directly
                   </div>
@@ -550,10 +549,10 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                     {/* Call */}
                     <a
                       href={getTelUrl(product.seller.phone || '15551234567')}
-                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#1a233a] md:bg-slate-800 hover:bg-[#233050] text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer press-feedback"
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#101B32] hover:bg-[#162544] text-white rounded-2xl font-black text-xs uppercase tracking-wider border border-[rgba(100,149,237,0.2)] transition-all shadow-md cursor-pointer press-feedback"
                       title="Call Seller"
                     >
-                      <Phone className="w-3.5 h-3.5 text-blue-400" />
+                      <Phone className="w-3.5 h-3.5 text-[#00C8FF]" />
                       <span>Call</span>
                     </a>
                   </div>
@@ -562,7 +561,7 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
                   <button
                     type="button"
                     onClick={() => setIsChatOpen(true)}
-                    className="w-full py-2 px-3 bg-[#0a0f1d] md:bg-indigo-50 hover:bg-[#151f33] text-blue-400 md:text-indigo-700 border border-white/10 md:border-indigo-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer press-feedback"
+                    className="w-full py-2 px-3 bg-[#101B32] hover:bg-[#162544] text-[#00C8FF] border border-[rgba(100,149,237,0.22)] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer press-feedback"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>In-App Marketplace Chat</span>
@@ -574,31 +573,31 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
             {/* ========================================================
                 EXCLUSIVE OFFERS & DISCOUNTS
                 ======================================================== */}
-            <div className="p-4 sm:p-5 bg-[#111827] md:bg-white rounded-3xl border border-white/10 md:border-slate-200/90 shadow-md space-y-2.5">
-              <h3 className="font-extrabold text-xs text-white md:text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-4 sm:p-5 bg-[#0B1427] rounded-3xl border border-[rgba(100,149,237,0.22)] shadow-xl space-y-2.5">
+              <h3 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-1.5">
                 <BadgePercent className="w-4 h-4 text-purple-400" />
                 <span>Available Offers</span>
               </h3>
               <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-[#0a0f1d] md:bg-slate-50 border border-white/5 md:border-slate-100 flex items-start gap-2">
-                  <Tag className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
-                  <span className="text-slate-300 md:text-slate-700">Special Promo: Extra 10% Off on orders above $100 with code <strong>MARKETZO10</strong></span>
+                <div className="p-2.5 rounded-xl bg-[#101B32] border border-[rgba(100,149,237,0.15)] flex items-start gap-2">
+                  <Tag className="w-3.5 h-3.5 text-[#00C8FF] shrink-0 mt-0.5" />
+                  <span className="text-slate-300">Special Promo: Extra 25% Off with code <strong className="text-purple-300">SUMMER25</strong></span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#0a0f1d] md:bg-slate-50 border border-white/5 md:border-slate-100 flex items-start gap-2">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="text-slate-300 md:text-slate-700">Bank Offer: Instant $15 Cashback on all Visa/Mastercard transactions</span>
+                <div className="p-2.5 rounded-xl bg-[#101B32] border border-[rgba(100,149,237,0.15)] flex items-start gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#22C55E] shrink-0 mt-0.5" />
+                  <span className="text-slate-300">Bank Offer: Instant 10% Cashback on UPI / Cards</span>
                 </div>
               </div>
             </div>
 
             {/* Product Highlights */}
             {product.highlights?.length > 0 && (
-              <div className="p-4 sm:p-5 bg-[#111827] md:bg-white rounded-3xl border border-white/10 md:border-slate-200/90 shadow-md space-y-2.5">
-                <h3 className="font-extrabold text-xs text-white md:text-slate-900 uppercase tracking-wider">Product Highlights</h3>
+              <div className="p-4 sm:p-5 bg-[#0B1427] rounded-3xl border border-[rgba(100,149,237,0.22)] shadow-xl space-y-2.5">
+                <h3 className="font-extrabold text-xs text-white uppercase tracking-wider">Product Highlights</h3>
                 <ul className="space-y-2">
                   {product.highlights.map((h, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-xs text-slate-300 md:text-slate-700">
-                      <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <li key={idx} className="flex items-start gap-2 text-xs text-slate-300">
+                      <CheckCircle2 className="w-4 h-4 text-[#00C8FF] shrink-0 mt-0.5" />
                       <span>{h}</span>
                     </li>
                   ))}
@@ -611,15 +610,15 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer press-feedback"
+                className="py-3 px-4 bg-[#101B32] hover:bg-[#162544] text-white border border-[rgba(100,149,237,0.3)] rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer press-feedback"
               >
-                <ShoppingCart className="w-4 h-4 text-indigo-600" />
+                <ShoppingCart className="w-4 h-4 text-[#00C8FF]" />
                 <span>Add to Cart</span>
               </button>
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer press-feedback"
+                className="py-3 px-4 bg-gradient-to-r from-[#2583FF] to-[#702EFF] hover:opacity-95 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer press-feedback"
               >
                 <Zap className="w-4 h-4" />
                 <span>Buy Now</span>
@@ -631,13 +630,13 @@ export const ProductDetailPage = ({ routeParams = {}, onNavigate }) => {
 
         {/* Technical Specifications */}
         {product.specs && Object.keys(product.specs).length > 0 && (
-          <div className="bg-[#111827] md:bg-white rounded-3xl p-4 sm:p-7 border border-white/10 md:border-slate-200 shadow-md space-y-3">
-            <h3 className="font-extrabold text-xs sm:text-sm text-white md:text-slate-900 uppercase tracking-wider">Technical Specifications</h3>
+          <div className="bg-[#0B1427] rounded-3xl p-4 sm:p-7 border border-[rgba(100,149,237,0.22)] shadow-xl space-y-3">
+            <h3 className="font-extrabold text-xs sm:text-sm text-white uppercase tracking-wider">Technical Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
               {Object.entries(product.specs).map(([key, val]) => (
-                <div key={key} className="flex p-3 rounded-2xl bg-[#0a0f1d] md:bg-slate-50 border border-white/5 md:border-slate-100 justify-between">
-                  <span className="font-semibold text-slate-400 md:text-slate-500">{key}</span>
-                  <span className="font-bold text-white md:text-slate-900">{val}</span>
+                <div key={key} className="flex p-3 rounded-2xl bg-[#101B32] border border-[rgba(100,149,237,0.15)] justify-between">
+                  <span className="font-semibold text-slate-400">{key}</span>
+                  <span className="font-bold text-white">{val}</span>
                 </div>
               ))}
             </div>

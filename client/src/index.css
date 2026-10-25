@@ -3,18 +3,34 @@
 @layer base {
   :root {
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --bg-primary: #030712;
+    --bg-secondary: #081225;
+    --bg-card: #0B1427;
+    --bg-card-elevated: #101B32;
+    --primary-blue: #2583FF;
+    --electric-blue: #00C8FF;
+    --purple: #702EFF;
+    --violet-accent: #A855F7;
+    --text-primary: #F8FAFC;
+    --text-secondary: #A8B5CC;
+    --border-subtle: rgba(100, 149, 237, 0.22);
+    --border-elevated: rgba(100, 149, 237, 0.35);
+    --success-accent: #22C55E;
+    --deal-accent: #FF8A00;
   }
 
   html {
     max-width: 100%;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+    background-color: #030712;
+    color: #F8FAFC;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #030712;
+    color: #F8FAFC;
     max-width: 100%;
     overflow-x: hidden;
     width: 100%;

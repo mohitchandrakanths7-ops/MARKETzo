@@ -14,10 +14,10 @@ import {
 
 export const Footer = ({ onNavigate }) => {
   return (
-    <footer className="bg-slate-950 text-slate-400 text-sm border-t border-slate-800 mt-20">
+    <footer className="bg-[#030712] text-slate-400 text-sm border-t border-[rgba(100,149,237,0.22)] mt-20">
       
       {/* Marketplace Trust Pillars */}
-      <div className="border-b border-slate-800/80 bg-slate-900/50">
+      <div className="border-b border-[rgba(100,149,237,0.15)] bg-[#081225]/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             
@@ -81,7 +81,7 @@ export const Footer = ({ onNavigate }) => {
 
           <div className="w-full md:w-auto">
             <div className="text-xs font-bold text-white uppercase tracking-wider mb-2">Subscribe to MARKETZO VIP Deals</div>
-            <div className="flex max-w-sm rounded-xl overflow-hidden bg-slate-900 border border-slate-800 focus-within:border-indigo-500 transition-colors">
+            <div className="flex max-w-sm rounded-xl overflow-hidden bg-[#0B1427] border border-[rgba(100,149,237,0.22)] focus-within:border-[#2583FF] transition-colors">
               <input
                 type="email"
                 placeholder="Enter your email address..."
@@ -90,7 +90,7 @@ export const Footer = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={() => alert('Thank you for subscribing to Marketzo VIP news!')}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                className="bg-gradient-to-r from-[#2583FF] to-[#702EFF] hover:opacity-95 text-white px-4 text-xs font-bold transition-opacity flex items-center gap-1 cursor-pointer shadow-sm"
               >
                 <span>Join</span>
                 <ArrowRight className="w-3 h-3" />

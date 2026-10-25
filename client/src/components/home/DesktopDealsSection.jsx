@@ -53,22 +53,28 @@ export const DesktopDealsSection = ({ products = [], timeLeft, onNavigate }) => 
             <div
               key={product.id}
               onClick={() => onNavigate('product-detail', { id: product.id, slug: product.slug })}
-              className="group relative flex flex-col justify-between rounded-2xl p-3 border transition-all duration-300 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer"
+              className="group relative flex flex-col justify-between rounded-2xl p-3 border transition-all duration-300 hover:scale-[1.02] hover:border-[#2583FF] hover:shadow-xl hover:shadow-[0_10px_25px_rgba(0,0,0,0.5)] cursor-pointer"
               style={{
-                background: '#101522',
-                borderColor: 'rgba(255,255,255,0.07)'
+                background: '#0B1427',
+                borderColor: 'rgba(100, 149, 237, 0.22)'
               }}
             >
-              {/* Product Image Box */}
-              <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-900/80 mb-3 flex items-center justify-center">
+              {/* Product Image Box with White Surface */}
+              <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-white mb-3 flex items-center justify-center p-3 shadow-sm">
                 {img ? (
                   <img
                     src={img}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="text-3xl">🛍️</div>
+                )}
+
+                {hasDiscount && discountPct > 0 && (
+                  <span className="absolute top-2 left-2 bg-[#E11D48] text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow-sm">
+                    {discountPct}% OFF
+                  </span>
                 )}
 
                 {/* Wishlist Button */}
@@ -78,12 +84,12 @@ export const DesktopDealsSection = ({ products = [], timeLeft, onNavigate }) => 
                     e.stopPropagation();
                     toggleWishlist(product);
                   }}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-950/70 backdrop-blur-md flex items-center justify-center transition-all hover:scale-110"
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-all hover:scale-110 border border-slate-200"
                   aria-label="Toggle Wishlist"
                 >
                   <Heart
                     className={`w-3.5 h-3.5 transition-colors ${
-                      inWish ? 'text-rose-500 fill-rose-500' : 'text-slate-300 hover:text-white'
+                      inWish ? 'text-rose-500 fill-rose-500' : 'text-slate-400 hover:text-rose-500'
                     }`}
                   />
                 </button>
@@ -97,26 +103,21 @@ export const DesktopDealsSection = ({ products = [], timeLeft, onNavigate }) => 
                     <span>{rating.toFixed(1)}</span>
                     <span className="text-slate-500 font-normal">({product.reviewCount || 120})</span>
                   </div>
-                  <h3 className="text-xs font-bold text-slate-200 line-clamp-1 group-hover:text-white transition-colors mt-0.5">
+                  <h3 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#00C8FF] transition-colors mt-0.5">
                     {product.name}
                   </h3>
                 </div>
 
                 {/* Price & Action Row */}
-                <div className="pt-2 flex items-baseline justify-between">
+                <div className="pt-2 border-t border-[rgba(100,149,237,0.15)] flex items-baseline justify-between">
                   <div>
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-sm font-black text-white">
                         {formatPrice(product.price)}
                       </span>
-                      {hasDiscount && discountPct > 0 && (
-                        <span className="text-[10px] font-bold text-emerald-400">
-                          {discountPct}% OFF
-                        </span>
-                      )}
                     </div>
                     {product.originalPrice && product.originalPrice > product.price && (
-                      <div className="text-[10px] text-slate-500 line-through">
+                      <div className="text-[10px] text-slate-400 line-through">
                         {formatPrice(product.originalPrice)}
                       </div>
                     )}
@@ -128,7 +129,8 @@ export const DesktopDealsSection = ({ products = [], timeLeft, onNavigate }) => 
                       e.stopPropagation();
                       addToCart(product, 1);
                     }}
-                    className="p-2 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white transition-all shadow-sm cursor-pointer press-feedback"
+                    className="p-2 rounded-lg text-white transition-all shadow-md cursor-pointer hover:scale-105 active:scale-95"
+                    style={{ background: 'linear-gradient(135deg, #2583FF 0%, #702EFF 100%)' }}
                     title="Add to Cart"
                   >
                     <ShoppingCart className="w-3.5 h-3.5" />

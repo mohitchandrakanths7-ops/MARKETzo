@@ -58,6 +58,7 @@ import { FloatingCartBar } from '../components/home/FloatingCartBar';
 // ── Desktop Homepage Components ───────────────────────────────────────────────
 import { DesktopCategorySidebar } from '../components/home/DesktopCategorySidebar';
 import { DesktopHero } from '../components/home/DesktopHero';
+import { DesktopPromoCards } from '../components/home/DesktopPromoCards';
 import { QuickAccessPanel } from '../components/home/QuickAccessPanel';
 import { DesktopTrustStrip } from '../components/home/DesktopTrustStrip';
 import { DesktopDealsSection } from '../components/home/DesktopDealsSection';
@@ -149,27 +150,33 @@ export const HomePage = ({ onNavigate }) => {
   const formattedTimer = `${String(timeLeft.hours).padStart(2,'0')}:${String(timeLeft.minutes).padStart(2,'0')}:${String(timeLeft.seconds).padStart(2,'0')}`;
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden bg-[#030712] text-white">
 
       {/* =======================================================================
           MOBILE HOMEPAGE — Premium Futuristic Dark Interface (hidden on md+)
           ======================================================================= */}
-      <div
-        className="md:hidden min-h-screen pb-36 bg-[#080c14] text-white"
-      >
+      <div className="md:hidden min-h-screen pb-36 bg-[#030712] text-white">
         {/* Sticky compact header with Logo, Cart, Profile, Location, and Search Field */}
         <MobileHeader onNavigate={onNavigate} />
 
-        {/* 1. Category horizontal scrollable pills with exact departments */}
+        {/* 1. Category horizontal scrollable pills */}
         <CategoryScroller onNavigate={onNavigate} />
 
         {/* 2. Hero promotional carousel below categories */}
         <HeroCarousel onNavigate={onNavigate} />
 
-        {/* 3. 🎮 Gaming Zone Top-Level Destination Card */}
+        {/* 3. Promotional Feature Cards (Crazy Deals, Wholesale, AI Find) */}
+        <div className="px-3.5 my-3">
+          <DesktopPromoCards
+            onNavigate={onNavigate}
+            onOpenAiAssistant={() => setShowAiAssistant(true)}
+          />
+        </div>
+
+        {/* 4. 🎮 Gaming Zone Top-Level Destination Card */}
         <GamingZoneBanner onNavigate={onNavigate} />
 
-        {/* 4. Featured Products horizontal carousel */}
+        {/* 5. Featured Products horizontal carousel */}
         <ProductCarousel
           title="Featured Products"
           emoji="⭐"
@@ -179,7 +186,7 @@ export const HomePage = ({ onNavigate }) => {
           viewAllParams={{ featured: 'true' }}
         />
 
-        {/* 5. ⚡ Flash Deals with live countdown timer */}
+        {/* 6. ⚡ Flash Deals with live countdown timer */}
         {(flashDeals.length > 0 || isLoading) && (
           <ProductCarousel
             title="Flash Deals"
@@ -193,26 +200,26 @@ export const HomePage = ({ onNavigate }) => {
           />
         )}
 
-        {/* 6. 2-Column Responsive Mobile Product Grid Showcase */}
+        {/* 7. 2-Column Responsive Mobile Product Grid Showcase */}
         <div className="px-3.5 mb-6 animate-fade-in-up">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-1.5">
-                <span>🛍️</span>
-                <span>Recommended For You</span>
+                <span>🔥</span>
+                <span>Trending Products</span>
               </h2>
-              <p className="text-[11px] text-slate-400 font-medium">Top picks with 2-Day Express Shipping</p>
+              <p className="text-[11px] text-[#A8B5CC] font-medium">Top picks with 2-Day Express Shipping</p>
             </div>
             <button
-              onClick={() => onNavigate('products', {})}
-              className="text-xs font-bold text-blue-400 hover:text-blue-300 cursor-pointer press-feedback"
+              onClick={() => onNavigate('products', { trending: 'true' })}
+              className="text-xs font-bold text-[#00C8FF] hover:underline cursor-pointer"
             >
               See All →
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5">
-            {(pickedProducts.length > 0 ? pickedProducts : trendingProducts).slice(0, 6).map(p => (
+            {(trendingProducts.length > 0 ? trendingProducts : featuredProducts).slice(0, 8).map(p => (
               <ProductCard
                 key={p.id}
                 product={p}
@@ -222,18 +229,6 @@ export const HomePage = ({ onNavigate }) => {
             ))}
           </div>
         </div>
-
-        {/* 7. Trending Products */}
-        {trendingProducts.length > 0 && (
-          <ProductCarousel
-            title="Trending Now"
-            emoji="📈"
-            products={trendingProducts}
-            isLoading={isLoading}
-            onNavigate={onNavigate}
-            viewAllParams={{ trending: 'true' }}
-          />
-        )}
 
         {/* 8. Popular Verified Merchants */}
         <SellerCarousel
@@ -276,28 +271,75 @@ export const HomePage = ({ onNavigate }) => {
       {/* =======================================================================
           DESKTOP HOMEPAGE — Modern 3-Column Dark Premium Layout (hidden on mobile)
           ======================================================================= */}
-      <div className="hidden md:block space-y-8 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <div className="hidden md:block space-y-8 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
         
-        {/* 3-Column Top Section: Categories Sidebar | Main Hero | Quick Access Profile */}
-        <div className="grid grid-cols-12 gap-4 items-stretch">
-          {/* Left Sidebar (~240px) */}
+        {/* 3-Column Top Section: Categories Sidebar | Main Hero & Promo Cards & Trending Products | Right Sidebar */}
+        <div className="grid grid-cols-12 gap-5 items-start">
+          
+          {/* Left Column: Categories Sidebar (~250-270px) */}
           <div className="col-span-3 lg:col-span-3 xl:col-span-2">
             <DesktopCategorySidebar onNavigate={onNavigate} />
           </div>
 
-          {/* Center Main Hero (Flexible) */}
-          <div className="col-span-6 lg:col-span-6 xl:col-span-7">
+          {/* Center Column: Hero Banner + 3 Promo Cards + Trending Products */}
+          <div className="col-span-6 lg:col-span-6 xl:col-span-7 flex flex-col space-y-5">
+            
+            {/* 1. Large Central Shopping Hero */}
             <DesktopHero
               onNavigate={onNavigate}
               onOpenAiAssistant={() => setShowAiAssistant(true)}
             />
+
+            {/* 2. Three Promotional Feature Cards (Crazy Deals, Wholesale, AI Find) */}
+            <DesktopPromoCards
+              onNavigate={onNavigate}
+              onOpenAiAssistant={() => setShowAiAssistant(true)}
+            />
+
+            {/* 3. Trending Products Section matching Reference Screenshot */}
+            <div
+              className="rounded-3xl p-5 border shadow-xl"
+              style={{
+                background: '#081225',
+                borderColor: 'rgba(100, 149, 237, 0.22)'
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🔥</span>
+                  <h2 className="text-base sm:text-lg font-black text-white tracking-wide">
+                    Trending Products
+                  </h2>
+                </div>
+                <button
+                  onClick={() => onNavigate('products', { trending: 'true' })}
+                  className="text-xs font-bold text-[#00C8FF] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View All</span>
+                  <span>→</span>
+                </button>
+              </div>
+
+              {/* Grid of Product Cards with Clean White Image Surfaces */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                {(trendingProducts.length > 0 ? trendingProducts : featuredProducts).slice(0, 8).map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onNavigate={onNavigate}
+                    layout="grid"
+                  />
+                ))}
+              </div>
+            </div>
+
           </div>
 
-          {/* Right Quick Access Panel (~240px) */}
+          {/* Right Column: Account Panel | Gaming Zone | Top Stores (~360-390px) */}
           <div className="col-span-3 lg:col-span-3 xl:col-span-3">
             <QuickAccessPanel
               onNavigate={onNavigate}
-              onOpenAuthModal={() => setShowAiAssistant(false)}
+              onOpenAuthModal={() => { setAiPromptPreload(''); setShowAiAssistant(false); }}
               sellers={trustedSellers}
             />
           </div>
@@ -306,7 +348,7 @@ export const HomePage = ({ onNavigate }) => {
         {/* 100% Genuine Trust Badges Strip */}
         <DesktopTrustStrip />
 
-        {/* Today's Best Deals Section */}
+        {/* Today's Best Deals Section with Live Countdown Timer */}
         <DesktopDealsSection
           products={flashDeals.length > 0 ? flashDeals : featuredProducts}
           timeLeft={timeLeft}
@@ -332,11 +374,11 @@ export const HomePage = ({ onNavigate }) => {
           onNavigate={onNavigate}
         />
 
-        {/* Trending Now Section */}
-        {trendingProducts.length > 0 && (
+        {/* Trending Now Extended Section */}
+        {trendingProducts.length > 8 && (
           <DesktopRecommended
-            products={trendingProducts}
-            title="Trending Products"
+            products={trendingProducts.slice(8)}
+            title="More Trending Discoveries"
             onNavigate={onNavigate}
           />
         )}

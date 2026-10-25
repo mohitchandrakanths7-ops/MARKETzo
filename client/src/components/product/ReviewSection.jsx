@@ -93,21 +93,21 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-8">
+    <div className="bg-[#0B1427] rounded-3xl p-6 sm:p-8 border border-[rgba(100,149,237,0.22)] shadow-xl space-y-8">
       
       {/* Header & Score Summary */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-[rgba(100,149,237,0.15)]">
         
         {/* Left Rating score badge */}
         <div className="flex items-center gap-6">
-          <div className="text-center p-4 bg-amber-50/60 rounded-3xl border border-amber-200/80 min-w-[130px]">
-            <div className="text-4xl font-black text-slate-900">{averageRating?.toFixed(1) || '4.8'}</div>
+          <div className="text-center p-4 bg-[#101B32] rounded-3xl border border-[rgba(100,149,237,0.2)] min-w-[130px]">
+            <div className="text-4xl font-black text-white">{averageRating?.toFixed(1) || '4.8'}</div>
             <div className="flex justify-center text-amber-400 my-1">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-500" />
               ))}
             </div>
-            <div className="text-xs text-slate-500 font-semibold">{totalReviews || localReviews.length} Ratings</div>
+            <div className="text-xs text-slate-400 font-semibold">{totalReviews || localReviews.length} Ratings</div>
           </div>
 
           {/* Rating percentage bars */}
@@ -116,9 +116,9 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
               const count = ratingCounts[stars] || 0;
               const percent = localReviews.length > 0 ? (count / localReviews.length) * 100 : 0;
               return (
-                <div key={stars} className="flex items-center gap-2 text-slate-600">
+                <div key={stars} className="flex items-center gap-2 text-slate-300">
                   <span className="font-bold w-3">{stars}★</span>
-                  <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-[#101B32] rounded-full overflow-hidden">
                     <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${percent}%` }} />
                   </div>
                   <span className="text-[11px] text-slate-400 w-8 text-right">{count}</span>
@@ -138,7 +138,7 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
               }
               setShowModal(true);
             }}
-            className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+            className="px-6 py-3.5 bg-gradient-to-r from-[#2583FF] to-[#702EFF] hover:opacity-95 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Write a Customer Review</span>
@@ -148,16 +148,16 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
 
       {/* Reviews Stream */}
       <div className="space-y-4">
-        <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+        <h4 className="text-sm font-extrabold text-white uppercase tracking-wider">
           Customer Feedback ({localReviews.length})
         </h4>
 
         {localReviews.length === 0 ? (
-          <div className="text-center py-10 text-slate-400 text-xs bg-slate-50 rounded-2xl">
+          <div className="text-center py-10 text-slate-400 text-xs bg-[#101B32] border border-[rgba(100,149,237,0.15)] rounded-2xl">
             No customer reviews yet. Be the first to share your experience with this item!
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 space-y-4">
+          <div className="divide-y divide-[rgba(100,149,237,0.15)] space-y-4">
             {localReviews.map((rev) => (
               <div key={rev.id} className="pt-4 first:pt-0 space-y-2.5">
                 <div className="flex items-start justify-between">
@@ -165,14 +165,14 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                     <img
                       src={rev.userAvatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rev.userName || 'Shopper')}`}
                       alt={rev.userName}
-                      className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                      className="w-9 h-9 rounded-full object-cover border border-[rgba(100,149,237,0.3)]"
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-xs text-slate-900">{rev.userName}</span>
+                        <span className="font-extrabold text-xs text-white">{rev.userName}</span>
                         {rev.verifiedPurchase && (
-                          <span className="flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
-                            <CheckCircle className="w-3 h-3 text-emerald-600" />
+                          <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full font-bold border border-emerald-800">
+                            <CheckCircle className="w-3 h-3 text-emerald-400" />
                             Verified Purchase
                           </span>
                         )}
@@ -191,26 +191,26 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                   </div>
                 </div>
 
-                <div className="font-bold text-xs text-slate-800">{rev.title}</div>
-                <p className="text-xs text-slate-600 leading-relaxed">{rev.comment}</p>
+                <div className="font-bold text-xs text-white">{rev.title}</div>
+                <p className="text-xs text-slate-300 leading-relaxed">{rev.comment}</p>
 
                 {/* Review Photos */}
                 {rev.images && rev.images.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {rev.images.map((img, i) => (
-                      <img key={i} src={img} alt="Review attachment" className="w-16 h-16 object-cover rounded-xl border border-slate-200" />
+                      <img key={i} src={img} alt="Review attachment" className="w-16 h-16 object-cover rounded-xl border border-[rgba(100,149,237,0.22)]" />
                     ))}
                   </div>
                 )}
 
                 {/* Seller Reply Box */}
                 {rev.sellerReply && (
-                  <div className="mt-3 p-3.5 bg-slate-50 rounded-2xl border-l-4 border-indigo-600 space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900">
-                      <CornerDownRight className="w-3.5 h-3.5 text-indigo-600" />
+                  <div className="mt-3 p-3.5 bg-[#101B32] rounded-2xl border-l-4 border-[#2583FF] space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#00C8FF]">
+                      <CornerDownRight className="w-3.5 h-3.5 text-[#00C8FF]" />
                       <span>Response from {rev.sellerStoreName || 'Merchant Store'}:</span>
                     </div>
-                    <p className="text-xs text-slate-600 pl-5">{rev.sellerReply}</p>
+                    <p className="text-xs text-slate-300 pl-5">{rev.sellerReply}</p>
                     <div className="text-[10px] text-slate-400 pl-5">{new Date(rev.sellerReplyAt || rev.createdAt).toLocaleDateString()}</div>
                   </div>
                 )}
@@ -219,19 +219,19 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                 {isSeller && !rev.sellerReply && (
                   <div className="pt-1">
                     {replyingReviewId === rev.id ? (
-                      <div className="p-3 bg-slate-50 rounded-2xl space-y-2 border border-slate-200">
+                      <div className="p-3 bg-[#101B32] rounded-2xl space-y-2 border border-[rgba(100,149,237,0.22)]">
                         <textarea
                           rows={2}
                           value={replyText}
                           onChange={(e) => setReplyText(e.target.value)}
                           placeholder="Write official merchant response..."
-                          className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-indigo-600"
+                          className="w-full p-2.5 bg-[#0B1427] text-white border border-[rgba(100,149,237,0.22)] rounded-xl text-xs outline-none focus:border-[#2583FF]"
                         />
                         <div className="flex items-center justify-end gap-2">
                           <button
                             type="button"
                             onClick={() => setReplyingReviewId(null)}
-                            className="px-3 py-1 text-xs text-slate-600 font-bold"
+                            className="px-3 py-1 text-xs text-slate-400 font-bold cursor-pointer"
                           >
                             Cancel
                           </button>
@@ -239,7 +239,7 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                             type="button"
                             onClick={() => handlePostSellerReply(rev.id)}
                             disabled={isSubmittingReply || !replyText.trim()}
-                            className="px-4 py-1.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                            className="px-4 py-1.5 bg-gradient-to-r from-[#2583FF] to-[#702EFF] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                           >
                             {isSubmittingReply ? 'Posting...' : 'Post Reply'}
                           </button>
@@ -249,7 +249,7 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                       <button
                         type="button"
                         onClick={() => { setReplyingReviewId(rev.id); setReplyText(''); }}
-                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+                        className="text-xs font-bold text-[#00C8FF] hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <Reply className="w-3 h-3" />
                         <span>Reply to Customer as Seller</span>
@@ -276,11 +276,11 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
 
       {/* Review Submission Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <h3 className="font-bold text-base text-slate-900">Write Your Product Review</h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0B1427] rounded-3xl p-6 max-w-lg w-full shadow-2xl border border-[rgba(100,149,237,0.22)] animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[rgba(100,149,237,0.15)] mb-4">
+              <h3 className="font-bold text-base text-white">Write Your Product Review</h3>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -288,7 +288,7 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
             <form onSubmit={handleSubmitReview} className="space-y-4">
               {/* Star rating selector */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Your Overall Rating</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Your Overall Rating</label>
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -298,53 +298,53 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                       className="p-1 hover:scale-110 transition-transform cursor-pointer"
                     >
                       <Star
-                        className={`w-7 h-7 ${star <= rating ? 'fill-amber-400 text-amber-500' : 'text-slate-200 fill-slate-200'}`}
+                        className={`w-7 h-7 ${star <= rating ? 'fill-amber-400 text-amber-500' : 'text-slate-700 fill-slate-800'}`}
                       />
                     </button>
                   ))}
-                  <span className="text-xs font-bold text-slate-700 ml-2">{rating} out of 5 Stars</span>
+                  <span className="text-xs font-bold text-slate-300 ml-2">{rating} out of 5 Stars</span>
                 </div>
               </div>
 
               {/* Headline */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Review Headline</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Review Headline</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Exceptional sound and durable build quality"
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-indigo-600 font-semibold"
+                  className="w-full px-3.5 py-2.5 bg-[#101B32] border border-[rgba(100,149,237,0.22)] text-white rounded-xl text-xs outline-none focus:border-[#2583FF] font-semibold"
                 />
               </div>
 
               {/* Comment text */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Detailed Feedback</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Detailed Feedback</label>
                 <textarea
                   rows="4"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="What did you like or dislike about this product? How is the performance and quality?"
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-indigo-600 font-normal leading-relaxed"
+                  className="w-full px-3.5 py-2.5 bg-[#101B32] border border-[rgba(100,149,237,0.22)] text-white rounded-xl text-xs outline-none focus:border-[#2583FF] font-normal leading-relaxed"
                 />
               </div>
 
               {/* Photos */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Add Photo Proof (Optional)</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">Add Photo Proof (Optional)</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={photoUrl}
                     onChange={(e) => setPhotoUrl(e.target.value)}
                     placeholder="Paste image URL of your product..."
-                    className="flex-1 px-3.5 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-indigo-600"
+                    className="flex-1 px-3.5 py-2 bg-[#101B32] border border-[rgba(100,149,237,0.22)] text-white rounded-xl text-xs outline-none focus:border-[#2583FF]"
                   />
                   <button
                     type="button"
                     onClick={handleAddPhoto}
-                    className="px-3.5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    className="px-3.5 py-2 bg-[#101B32] hover:bg-[#162544] text-white border border-[rgba(100,149,237,0.22)] rounded-xl text-xs font-bold cursor-pointer"
                   >
                     Add
                   </button>
@@ -353,7 +353,7 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                   <div className="flex gap-2 pt-1">
                     {photos.map((p, i) => (
                       <div key={i} className="relative">
-                        <img src={p} alt="Upload" className="w-12 h-12 object-cover rounded-lg border border-slate-200" />
+                        <img src={p} alt="Upload" className="w-12 h-12 object-cover rounded-lg border border-[rgba(100,149,237,0.22)]" />
                         <button
                           type="button"
                           onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))}
@@ -367,18 +367,18 @@ export const ReviewSection = ({ productId, reviews = [], averageRating = 4.8, to
                 )}
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(100,149,237,0.15)]">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 bg-gradient-to-r from-[#2583FF] to-[#702EFF] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Submitting...' : 'Post Review'}
                 </button>

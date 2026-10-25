@@ -33,10 +33,10 @@ export const DesktopCategoryGrid = ({ onNavigate }) => {
           <button
             key={idx}
             onClick={() => onNavigate('products', { category: cat.slug })}
-            className="flex flex-col items-center p-4 rounded-2xl border transition-all duration-300 hover:scale-105 hover:border-indigo-500/40 group cursor-pointer"
+            className="flex flex-col items-center p-4 rounded-2xl border transition-all duration-300 hover:scale-105 hover:border-[#00C8FF]/50 shadow-md group cursor-pointer"
             style={{
-              background: '#101522',
-              borderColor: 'rgba(255,255,255,0.07)'
+              background: '#0B1427',
+              borderColor: 'rgba(100, 149, 237, 0.22)'
             }}
           >
             {/* Category Avatar / Icon Box */}

@@ -24,10 +24,10 @@ export const DesktopTopStores = ({ sellers = [], onNavigate }) => {
           <div
             key={seller.id}
             onClick={() => onNavigate('products', { sellerId: seller.id })}
-            className="flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 hover:border-indigo-500/40 hover:bg-slate-850 cursor-pointer"
+            className="flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 hover:border-[#00C8FF]/50 hover:bg-[#101B32] shadow-xl cursor-pointer"
             style={{
-              background: '#101522',
-              borderColor: 'rgba(255,255,255,0.07)'
+              background: '#0B1427',
+              borderColor: 'rgba(100, 149, 237, 0.22)'
             }}
           >
             <div className="flex items-center gap-3.5 min-w-0">
